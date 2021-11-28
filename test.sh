@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Pull the docker image
-docker pull makerdao/testchain-pymaker:unit-testing
+docker pull velerofinance/testchain-pymaker:unit-testing
 
 # Remove existing container if tests not gracefully stopped
 docker-compose down

@@ -5,7 +5,7 @@ The `pymaker` API exists to provide a simple way of interacting with Maker smart
 
 It was designed to simplify and facilitate creation of external profit-seeking agents, usually called keepers,
 that operate around the stablecoin set of smart contracts. The API can also be used to automate certain tasks for
-other entities involved in the platform, like DAI issuers or traders.
+other entities involved in the platform, like USDV issuers or traders.
 
 
 General
@@ -104,7 +104,7 @@ Approvals
 Contracts
 ---------
 
-DAI Stablecoin
+USDV Stablecoin
 ~~~~~~~~~~~~~~
 
 Tub
@@ -146,7 +146,7 @@ DSToken
 .. autoclass:: pymaker.token.DSToken
     :members:
 
-DSEthToken
+DSVlxToken
 """"""""""
 
 .. autoclass:: pymaker.token.DSEthToken

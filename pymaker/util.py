@@ -55,7 +55,7 @@ def synchronize(futures) -> list:
         return []
 
 
-def eth_balance(web3: Web3, address) -> Wad:
+def vlx_balance(web3: Web3, address) -> Wad:
     return Wad(web3.eth.getBalance(address.address))
 
 

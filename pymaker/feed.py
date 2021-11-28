@@ -34,7 +34,7 @@ class DSValue(DSAuth):
     Everybody can read from a `DSValue`.
     Calling `poke()` and `void()` is usually whitelisted to some addresses only.
 
-    The `DSValue` contract keeps the value as a 32-byte array (Ethereum `bytes32` type).
+    The `DSValue` contract keeps the value as a 32-byte array (Velas `bytes32` type).
     Methods have been provided to cast it into `int`, read as hex etc.
 
     You can find the source code of the `DSValue` contract here:
@@ -42,7 +42,7 @@ class DSValue(DSAuth):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSValue` contract.
+        address: Velas address of the `DSValue` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/DSValue.abi')

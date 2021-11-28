@@ -25,7 +25,7 @@ from pymaker.gas import GeometricGasPrice
 from pymaker.lifecycle import Lifecycle
 from pymaker.keys import register_keys
 from pymaker.numeric import Wad
-from pymaker.token import EthToken
+from pymaker.token import VlxToken
 
 logging.basicConfig(format='%(asctime)-15s %(levelname)-8s %(message)s', level=logging.DEBUG)
 # reduce logspew
@@ -40,8 +40,8 @@ print(web3.clientVersion)
 
 """
 Argument:           Reqd?   Example:
-Ethereum node URI   yes     https://localhost:8545
-Ethereum address    no      0x0000000000000000000000000000000aBcdef123
+Velas node URI   yes     https://localhost:8545
+Velas address    no      0x0000000000000000000000000000000aBcdef123
 Private key         no      key_file=~keys/default-account.json,pass_file=~keys/default-account.pass
 Gas price (GWEI)    no      9
 """
@@ -64,7 +64,7 @@ gas_price = None if len(sys.argv) <= 4 else \
                       every_secs=15,
                       max_price=100 * GeometricGasPrice.GWEI)
 
-eth = EthToken(web3, Address.zero())
+eth = VlxToken(web3, Address.zero())
 
 
 class TestApp:
@@ -82,7 +82,7 @@ class TestApp:
                 from_address=our_address, gas=21000, gas_price=gas_price)
 
         if our_address:
-            logging.info(f"Eth balance is {eth.balance_of(our_address)}")
+            logging.info(f"VLX balance is {eth.balance_of(our_address)}")
 
 
 if __name__ == '__main__':

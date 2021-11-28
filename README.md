@@ -2,25 +2,23 @@
 
 Python API for Maker contracts.
 
-![Build Status](https://github.com/makerdao/pymaker/actions/workflows/.github/workflows/tests.yaml/badge.svg?branch=master)
-
-<https://chat.makerdao.com/channel/keeper>
+![Build Status](https://github.com/velerofinance/pymaker/actions/workflows/.github/workflows/tests.yaml/badge.svg?branch=master)
 
 ## Introduction
 
-The _DAI Stablecoin System_ incentivizes external agents, called _keepers_,
-to automate certain operations around the Ethereum blockchain. In order to ease their
+The _USDV Stablecoin System_ incentivizes external agents, called _keepers_,
+to automate certain operations around the Velas blockchain. In order to ease their
 development, an API around most of the Maker contracts has been created. It can be used
 not only by keepers, but may also be found useful by authors of some other, unrelated
 utilities aiming to interact with these contracts.
 
 Based on this API, a set of reference Maker keepers is being developed. They all used to reside
 in this repository, but now each of them has an individual one: 
-[bite-keeper](https://github.com/makerdao/bite-keeper) (SCD only),
-[arbitrage-keeper](https://github.com/makerdao/arbitrage-keeper),
-[auction-keeper](https://github.com/makerdao/auction-keeper) (MCD only),
-[cdp-keeper](https://github.com/makerdao/cdp-keeper) (SCD only),
-[market-maker-keeper](https://github.com/makerdao/market-maker-keeper).
+[bite-keeper](https://github.com/velerofinance/bite-keeper) (SCD only),
+[arbitrage-keeper](https://github.com/velerofinance/arbitrage-keeper),
+[auction-keeper](https://github.com/velerofinance/auction-keeper) (MCD only),
+[cdp-keeper](https://github.com/velerofinance/cdp-keeper) (SCD only),
+[market-maker-keeper](https://github.com/velerofinance/market-maker-keeper).
 
 You only need to install this project directly if you want to build your own keepers,
 or if you want to play with this API library itself. If you just want to install
@@ -33,7 +31,7 @@ This project uses *Python 3.6.6*.
 
 In order to clone the project and install required third-party packages please execute:
 ```
-git clone https://github.com/makerdao/pymaker.git
+git clone https://github.com/velerofinance/pymaker.git
 cd pymaker
 pip3 install -r requirements.txt
 ```
@@ -62,7 +60,7 @@ export LDFLAGS="-L$(brew --prefix openssl)/lib" CFLAGS="-I$(brew --prefix openss
 
 ### Known node issues
  * `pymaker` has been tested against **Parity/OpenEthereum** and **Geth**.  It has not been tested against **Hyperledger Besu**.
- * Many Ethereum node providers do not support the full [JSON-RPC API](https://eth.wiki/json-rpc/API#json-rpc-methods). 
+ * Many Velas node providers do not support the full [JSON-RPC API](https://eth.wiki/json-rpc/API#json-rpc-methods). 
 As such, certain JSON-RPC calls in `__init__.py` may not function properly.  
  * Some node providers only support certain calls using websocket endpoints.  Unfortunately, Web3.py's 
  `WebsocketProvider` [does not support](https://github.com/ethereum/web3.py/issues/1413) multiple threads awaiting a 
@@ -82,13 +80,13 @@ As such, certain JSON-RPC calls in `__init__.py` may not function properly.
 
 The current version provides APIs around:
 * `ERC20Token`,
-* `Tub`, `Tap`,`Top` and `Vox` (<https://github.com/makerdao/sai>),
-* `Vat`, `Cat`, `Vow`, `Jug`, `Flipper`, `Flapper`, `Flopper` (<https://github.com/makerdao/dss>)
-* `SimpleMarket`, `ExpiringMarket` and `MatchingMarket` (<https://github.com/makerdao/maker-otc>),
-* `TxManager` (<https://github.com/makerdao/tx-manager>),
+* `Tub`, `Tap`,`Top` and `Vox` (<https://github.com/velerofinance/sai>),
+* `Vat`, `Cat`, `Vow`, `Jug`, `Flipper`, `Flapper`, `Flopper` (<https://github.com/velerofinance/dss>)
+* `SimpleMarket`, `ExpiringMarket` and `MatchingMarket` (<https://github.com/velerofinance/maker-otc>),
+* `TxManager` (<https://github.com/velerofinance/tx-manager>),
 * `DSGuard` (<https://github.com/dapphub/ds-guard>),
 * `DSToken` (<https://github.com/dapphub/ds-token>),
-* `DSEthToken` (<https://github.com/dapphub/ds-eth-token>),
+* `DSVlxToken` (<https://github.com/dapphub/ds-eth-token>),
 * `DSValue` (<https://github.com/dapphub/ds-value>),
 * `DSVault` (<https://github.com/dapphub/ds-vault>),
 * `EtherDelta` (<https://github.com/etherdelta/etherdelta.github.io>),
@@ -103,7 +101,7 @@ Contributions from the community are appreciated.
 ## Code samples
 
 Below you can find some code snippets demonstrating how the API can be used both for developing
-your own keepers and for creating some other utilities interacting with the _DAI Stablecoin_
+your own keepers and for creating some other utilities interacting with the _USDV Stablecoin_
 ecosystem contracts.
 
 ### Token transfer
@@ -216,9 +214,9 @@ for cup_id in range(1, tub.cupi()+1):
     print(f"Cup #{cup_id}, lad={cup.lad}, ink={cup.ink} SKR, tab={tub.tab(cup_id)} SAI, safe={tub.safe(cup_id)}")
 ```
 
-### Multi-collateral Dai
+### Multi-collateral Usdv
 
-This snippet demonstrates how to create a CDP and draw Dai.
+This snippet demonstrates how to create a CDP and draw Usdv.
 
 ```python
 import sys
@@ -229,44 +227,42 @@ from pymaker.deployment import DssDeployment
 from pymaker.keys import register_keys
 from pymaker.numeric import Wad
 
-
 web3 = Web3(HTTPProvider(endpoint_uri="https://localhost:8545",
                          request_kwargs={"timeout": 10}))
-web3.eth.defaultAccount = sys.argv[1]   # ex: 0x0000000000000000000000000000000aBcdef123
-register_keys(web3, [sys.argv[2]])      # ex: key_file=~keys/default-account.json,pass_file=~keys/default-account.pass
+web3.eth.defaultAccount = sys.argv[1]  # ex: 0x0000000000000000000000000000000aBcdef123
+register_keys(web3, [sys.argv[2]])  # ex: key_file=~keys/default-account.json,pass_file=~keys/default-account.pass
 
 mcd = DssDeployment.from_json(web3=web3, conf=open("tests/config/kovan-addresses.json", "r").read())
 our_address = Address(web3.eth.defaultAccount)
 
-
-# Choose the desired collateral; in this case we'll wrap some Eth
+# Choose the desired collateral; in this case we'll wrap some VLX
 collateral = mcd.collaterals['ETH-A']
 ilk = collateral.ilk
 collateral.gem.deposit(Wad.from_number(3)).transact()
 
-# Add collateral and allocate the desired amount of Dai
+# Add collateral and allocate the desired amount of Usdv
 collateral.approve(our_address)
 collateral.adapter.join(our_address, Wad.from_number(3)).transact()
 mcd.vat.frob(ilk, our_address, dink=Wad.from_number(3), dart=Wad.from_number(153)).transact()
-print(f"CDP Dai balance before withdrawal: {mcd.vat.dai(our_address)}")
+print(f"CDP Usdv balance before withdrawal: {mcd.vat.usdv(our_address)}")
 
-# Mint and withdraw our Dai
-mcd.approve_dai(our_address)
-mcd.dai_adapter.exit(our_address, Wad.from_number(153)).transact()
-print(f"CDP Dai balance after withdrawal:  {mcd.vat.dai(our_address)}")
+# Mint and withdraw our Usdv
+mcd.approve_usdv(our_address)
+mcd.usdv_adapter.exit(our_address, Wad.from_number(153)).transact()
+print(f"CDP Usdv balance after withdrawal:  {mcd.vat.usdv(our_address)}")
 
-# Repay (and burn) our Dai
-assert mcd.dai_adapter.join(our_address, Wad.from_number(153)).transact()
-print(f"CDP Dai balance after repayment:   {mcd.vat.dai(our_address)}")
+# Repay (and burn) our Usdv
+assert mcd.usdv_adapter.join(our_address, Wad.from_number(153)).transact()
+print(f"CDP Usdv balance after repayment:   {mcd.vat.usdv(our_address)}")
 
 # Withdraw our collateral
 mcd.vat.frob(ilk, our_address, dink=Wad(0), dart=Wad.from_number(-153)).transact()
 mcd.vat.frob(ilk, our_address, dink=Wad.from_number(-3), dart=Wad(0)).transact()
 collateral.adapter.exit(our_address, Wad.from_number(3)).transact()
-print(f"CDP Dai balance w/o collateral:    {mcd.vat.dai(our_address)}")
+print(f"CDP Usdv balance w/o collateral:    {mcd.vat.usdv(our_address)}")
 ```
 
-### Asynchronous invocation of Ethereum transactions
+### Asynchronous invocation of Velas transactions
 
 This snippet demonstrates how multiple token transfers can be executed asynchronously:
 
@@ -290,9 +286,9 @@ synchronize([sai.transfer(Address('0x0101010101020202020203030303030404040404'),
              skr.transfer(Address('0x0303030303040404040405050505050606060606'), Wad.from_number(2.5)).transact_async()])
 ```
 
-### Multiple invocations in one Ethereum transaction
+### Multiple invocations in one Velas transaction
 
-This snippet demonstrates how multiple token transfers can be executed in one Ethereum transaction.
+This snippet demonstrates how multiple token transfers can be executed in one Velas transaction.
 A `TxManager` instance has to be deployed and owned by the caller.
 
 ```python
@@ -363,7 +359,7 @@ Prerequisites:
 * [docker and docker-compose](https://www.docker.com/get-started) - for containerized deployments of Ganache and Parity
 * [seth](https://dapp.tools/seth/) - to enable the token faucet
 
-This project uses [pytest](https://docs.pytest.org/en/latest/) for unit testing.  Testing of Multi-collateral Dai is 
+This project uses [pytest](https://docs.pytest.org/en/latest/) for unit testing.  Testing of Multi-collateral Usdv is 
 performed on a Dockerized local testchain included in `tests\config`.
 
 In order to be able to run tests, please install development dependencies first by executing:
@@ -386,4 +382,4 @@ Transact.gas_estimate_for_bad_txs = 200000
 
 ## License
 
-See [COPYING](https://github.com/makerdao/pymaker/blob/master/COPYING) file.
+See [COPYING](https://github.com/velerofinance/pymaker/blob/master/COPYING) file.

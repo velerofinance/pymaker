@@ -26,7 +26,7 @@ from pymaker.numeric import Wad
 class CdpManager(Contract):
     """A client for the `DSCdpManger` contract, which is a wrapper around the cdp system, for easier use.
 
-    Ref. <https://github.com/makerdao/dss-cdp-manager/blob/master/src/DssCdpManager.sol>
+    Ref. <https://github.com/velerofinance/dss-cdp-manager/blob/master/src/DssCdpManager.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/DssCdpManager.abi')

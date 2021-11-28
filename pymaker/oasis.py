@@ -39,7 +39,7 @@ class Order:
 
     Attributes:
         order_id: Id of the order.
-        maker: Ethereum address of the owner of this order.
+        maker: Velas address of the owner of this order.
         pay_token: The address of the token which is put on sale.
         pay_amount: The amount of the `pay_token` token which is put on sale.
         buy_token: The address of the token the order creator wants to be paid with.
@@ -190,11 +190,11 @@ class SimpleMarket(Contract):
     It powers the `OasisDEX` decentralized exchange.
 
     You can find the source code of the `OasisDEX` contracts here:
-    <https://github.com/makerdao/maker-otc>.
+    <https://github.com/velerofinance/maker-otc>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `SimpleMarket` contract.
+        address: Velas address of the `SimpleMarket` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/SimpleMarket.abi')
@@ -242,7 +242,7 @@ class SimpleMarket(Contract):
         `LogMake` events are emitted by the Oasis contract every time someone places an order.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -259,7 +259,7 @@ class SimpleMarket(Contract):
         `LogBump` events are emitted by the Oasis contract every time someone calls the `bump()` function.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -276,7 +276,7 @@ class SimpleMarket(Contract):
         `LogTake` events are emitted by the Oasis contract every time someone takes an order.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -293,7 +293,7 @@ class SimpleMarket(Contract):
         `LogKill` events are emitted by the Oasis contract every time someone cancels an order.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -481,12 +481,12 @@ class MatchingMarket(SimpleMarket):
     """A client for a `MatchingMarket` contract.
 
     You can find the source code of the `OasisDEX` contracts here:
-    <https://github.com/makerdao/maker-otc>.
+    <https://github.com/velerofinance/maker-otc>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `MatchingMarket` contract.
-        support_address: Ethereum address of the `MakerOtcSupportMethods` contract (optional).
+        address: Velas address of the `MatchingMarket` contract.
+        support_address: Velas address of the `MakerOtcSupportMethods` contract (optional).
     """
 
     abi = Contract._load_abi(__name__, 'abi/MatchingMarket.abi')
@@ -513,7 +513,7 @@ class MatchingMarket(SimpleMarket):
             dust_token: Address of token serving as unit of measurement for dust_limit
             dust_limit: The limit itself
             price_oracle: Exposes getPriceFor method for price conversion
-            support_address: Ethereum address of the `MakerOtcSupportMethods` contract (optional).
+            support_address: Velas address of the `MakerOtcSupportMethods` contract (optional).
 
         Returns:
             A `MatchingMarket` class instance.

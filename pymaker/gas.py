@@ -28,7 +28,7 @@ class GasPrice(object):
     `GasPrice` class contains only one method, `get_gas_price`, which is responsible for
     returning the gas price (in Wei) for a specific point in time. It is possible to build
     custom gas price strategies by implementing this method so the gas price returned
-    increases over time. The piece of code responsible for sending Ethereum transactions
+    increases over time. The piece of code responsible for sending Velas transactions
     (please see :py:class:`pymaker.Transact`) will in this case overwrite the transaction
     with another one, using the same `nonce` but increasing gas price. If the value returned
     by `get_gas_price` does not go up, no new transaction gets submitted to the network.
@@ -41,19 +41,19 @@ class GasPrice(object):
     def get_gas_price(self, time_elapsed: int) -> Optional[int]:
         """Return gas price applicable for a given point in time.
 
-        Bear in mind that Parity (don't know about other Ethereum nodes) requires the gas
+        Bear in mind that Parity (don't know about other Velas nodes) requires the gas
         price for overwritten transactions to go up by at least 10%. Also, you may return
         `None` which will make the node use the default gas price, but once you returned
         a numeric value (gas price in Wei), you shouldn't switch back to `None` as such
         transaction also may not get properly overwritten.
 
         Args:
-            time_elapsed: Number of seconds since this specific Ethereum transaction
+            time_elapsed: Number of seconds since this specific Velas transaction
                 has been originally sent for the first time.
 
         Returns:
             Gas price in Wei, or `None` if default gas price should be used. Default gas price
-            means it's the Ethereum node the keeper is connected to will decide on the gas price.
+            means it's the Velas node the keeper is connected to will decide on the gas price.
         """
         raise NotImplementedError("Please implement this method")
 
@@ -61,7 +61,7 @@ class GasPrice(object):
 class DefaultGasPrice(GasPrice):
     """Default gas price.
 
-    Uses the default gas price i.e. gas price will be decided by the Ethereum node
+    Uses the default gas price i.e. gas price will be decided by the Velas node
     the keeper is connected to.
     """
 
@@ -72,7 +72,7 @@ class DefaultGasPrice(GasPrice):
 class NodeAwareGasPrice(GasPrice):
     """Abstract baseclass which is Web3-aware.
 
-    Retrieves the default gas price provided by the Ethereum node to be consumed by subclasses.
+    Retrieves the default gas price provided by the Velas node to be consumed by subclasses.
     """
 
     def __init__(self, web3: Web3):
@@ -93,7 +93,7 @@ class NodeAwareGasPrice(GasPrice):
 class FixedGasPrice(GasPrice):
     """Fixed gas price.
 
-    Uses specified gas price instead of the default price suggested by the Ethereum
+    Uses specified gas price instead of the default price suggested by the Velas
     node the keeper is connected to. The gas price may be later changed (while the transaction
     is still in progress) by calling the `update_gas_price` method.
 

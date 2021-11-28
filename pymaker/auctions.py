@@ -64,14 +64,14 @@ class AuctionContract(Contract):
                 self.kick_abi = member
 
     def approve(self, source: Address, approval_function):
-        """Approve the auction to access our collateral, Dai, or MKR so we can participate in auctions.
+        """Approve the auction to access our collateral, Usdv, or VDGT so we can participate in auctions.
 
         For available approval functions (i.e. approval modes) see `directly` and `hope_directly`
         in `pymaker.approval`.
 
         Args:
             source: Address of the contract or token relevant to the auction (for Flipper and Flopper pass Vat address,
-            for Flapper pass MKR token address)
+            for Flapper pass VDGT token address)
             approval_function: Approval function (i.e. approval mode)
         """
         assert isinstance(source, Address)
@@ -213,11 +213,11 @@ class Flipper(DealableAuctionContract):
     """A client for the `Flipper` contract, used to interact with collateral auctions.
 
     You can find the source code of the `Flipper` contract here:
-    <https://github.com/makerdao/dss/blob/master/src/flip.sol>.
+    <https://github.com/velerofinance/dss/blob/master/src/flip.sol>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Flipper` contract.
+        address: Velas address of the `Flipper` contract.
 
     Event signatures:
         0x65fae35e: (deployment-related)
@@ -372,11 +372,11 @@ class Flapper(DealableAuctionContract):
     """A client for the `Flapper` contract, used to interact with surplus auctions.
 
     You can find the source code of the `Flapper` contract here:
-    <https://github.com/makerdao/dss/blob/master/src/flap.sol>.
+    <https://github.com/velerofinance/dss/blob/master/src/flap.sol>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Flapper` contract.
+        address: Velas address of the `Flapper` contract.
 
     Event signatures:
         0x65fae35e: (deployment-related)
@@ -393,8 +393,8 @@ class Flapper(DealableAuctionContract):
     class Bid:
         def __init__(self, id: int, bid: Wad, lot: Rad, guy: Address, tic: int, end: int):
             assert(isinstance(id, int))
-            assert(isinstance(bid, Wad))        # MKR
-            assert(isinstance(lot, Rad))        # DAI
+            assert(isinstance(bid, Wad))        # VDGT
+            assert(isinstance(lot, Rad))        # USDV
             assert(isinstance(guy, Address))
             assert(isinstance(tic, int))
             assert(isinstance(end, int))
@@ -505,11 +505,11 @@ class Flopper(DealableAuctionContract):
     """A client for the `Flopper` contract, used to interact with debt auctions.
 
     You can find the source code of the `Flopper` contract here:
-    <https://github.com/makerdao/dss/blob/master/src/flop.sol>.
+    <https://github.com/velerofinance/dss/blob/master/src/flop.sol>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Flopper` contract.
+        address: Velas address of the `Flopper` contract.
 
     Event signatures:
         0x65fae35e: (deployment-related)
@@ -647,11 +647,11 @@ class Clipper(AuctionContract):
     """A client for the `Clipper` contract, used to interact with collateral auctions.
 
     You can find the source code of the `Clipper` contract here:
-    <https://github.com/makerdao/dss/blob/master/src/clip.sol>.
+    <https://github.com/velerofinance/dss/blob/master/src/clip.sol>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Clipper` contract.
+        address: Velas address of the `Clipper` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/Clipper.abi')
@@ -679,7 +679,7 @@ class Clipper(AuctionContract):
             self.id = args['id']
             self.max = Ray(args['max'])         # Max bid price specified
             self.price = Ray(args['price'])     # Calculated bid price
-            self.owe = Rad(args['owe'])         # Dai needed to satisfy the calculated bid price
+            self.owe = Rad(args['owe'])         # Usdv needed to satisfy the calculated bid price
             self.tab = Rad(args['tab'])         # Remaining debt
             self.lot = Wad(args['lot'])         # Remaining lot
             self.usr = Address(args['usr'])     # Liquidated vault
@@ -707,7 +707,7 @@ class Clipper(AuctionContract):
 
             self.id = id    # auction identifier
             self.pos = pos  # active index
-            self.tab = tab  # dai to raise
+            self.tab = tab  # usdv to raise
             self.lot = lot  # collateral to sell
             self.usr = usr  # liquidated urn address
             self.tic = tic  # auction start time
@@ -828,7 +828,7 @@ class Clipper(AuctionContract):
         assert max >= price
 
         slice: Wad = min(lot, amt)          # Purchase as much as possible, up to amt
-        owe: Rad = Rad(slice) * Rad(price)  # DAI needed to buy a slice of this sale
+        owe: Rad = Rad(slice) * Rad(price)  # USDV needed to buy a slice of this sale
         chost = self.chost()
 
         if Rad(owe) > tab:
@@ -842,7 +842,7 @@ class Clipper(AuctionContract):
 
         tab: Rad = tab - owe
         lot: Wad = lot - slice
-        assert self.vat.dai(our_address) >= owe
+        assert self.vat.usdv(our_address) >= owe
         logger.debug(f"Validated clip.take which will leave tab={float(tab)} and lot={float(lot)}")
 
     def take(self, id: int, amt: Wad, max: Ray, who: Address = None, data=b'') -> Transact:
@@ -850,7 +850,7 @@ class Clipper(AuctionContract):
         Args:
             id:     Auction id
             amt:    Upper limit on amount of collateral to buy
-            max:    Maximum acceptable price (DAI / collateral)
+            max:    Maximum acceptable price (USDV / collateral)
             who:    Receiver of collateral and external call address
             data:   Data to pass in external call; if length 0, no call is done
         """

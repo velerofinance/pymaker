@@ -80,7 +80,7 @@ class Urn:
 class Vat(Contract):
     """A client for the `Vat` contract, which manages accounting for all Urns (CDPs).
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/vat.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/vat.sol>
     """
 
     # Identifies vault holders and collateral types they have frobbed
@@ -91,7 +91,7 @@ class Vat(Contract):
             self.ilk = str(Web3.toText(lognote.arg1)).replace('\x00', '')
             self.urn = Address(Web3.toHex(lognote.arg2)[26:])
             self.collateral_owner = Address(Web3.toHex(lognote.arg3)[26:])
-            self.dai_recipient = Address(Web3.toHex(lognote.get_bytes_at_index(3))[26:])
+            self.usdv_recipient = Address(Web3.toHex(lognote.get_bytes_at_index(3))[26:])
             self.dink = Wad(int.from_bytes(lognote.get_bytes_at_index(4), byteorder="big", signed=True))
             self.dart = Wad(int.from_bytes(lognote.get_bytes_at_index(5), byteorder="big", signed=True))
             self.block = lognote.block
@@ -180,10 +180,10 @@ class Vat(Contract):
 
         return Wad(self._contract.functions.gem(ilk.toBytes(), urn.address).call())
 
-    def dai(self, urn: Address) -> Rad:
+    def usdv(self, urn: Address) -> Rad:
         assert isinstance(urn, Address)
 
-        return Rad(self._contract.functions.dai(urn.address).call())
+        return Rad(self._contract.functions.usdv(urn.address).call())
 
     def sin(self, urn: Address) -> Rad:
         assert isinstance(urn, Address)
@@ -225,12 +225,12 @@ class Vat(Contract):
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'flux', flux_args)
 
     def move(self, src: Address, dst: Address, rad: Rad) -> Transact:
-        """Move Dai balance in Vat from source address to destiny address
+        """Move Usdv balance in Vat from source address to destiny address
 
         Args:
-            src: Source of the dai (address of the source).
-            dst: Destiny of the dai (address of the recipient).
-            rad: Amount of dai to move.
+            src: Source of the usdv (address of the source).
+            dst: Destiny of the usdv (address of the recipient).
+            rad: Amount of usdv to move.
         """
         assert isinstance(src, Address)
         assert isinstance(dst, Address)
@@ -258,27 +258,27 @@ class Vat(Contract):
         fork_args = [ilk.toBytes(), src.address, dst.address, dink.value, dart.value]
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'fork', fork_args)
 
-    def frob(self, ilk: Ilk, urn_address: Address, dink: Wad, dart: Wad, collateral_owner=None, dai_recipient=None):
-        """Adjust amount of collateral and reserved amount of Dai for the CDP
+    def frob(self, ilk: Ilk, urn_address: Address, dink: Wad, dart: Wad, collateral_owner=None, usdv_recipient=None):
+        """Adjust amount of collateral and reserved amount of Usdv for the CDP
 
         Args:
             ilk: Identifies the type of collateral.
             urn_address: CDP holder (address of the Urn).
             dink: Amount of collateral to add/remove.
-            dart: Adjust CDP debt (amount of Dai available for borrowing).
+            dart: Adjust CDP debt (amount of Usdv available for borrowing).
             collateral_owner: Holder of the collateral used to fund the CDP.
-            dai_recipient: Party receiving the Dai.
+            usdv_recipient: Party receiving the Usdv.
         """
         assert isinstance(ilk, Ilk)
         assert isinstance(urn_address, Address)
         assert isinstance(dink, Wad)
         assert isinstance(dart, Wad)
         assert isinstance(collateral_owner, Address) or (collateral_owner is None)
-        assert isinstance(dai_recipient, Address) or (dai_recipient is None)
+        assert isinstance(usdv_recipient, Address) or (usdv_recipient is None)
 
         # Usually these addresses are the same as the account holding the urn
         v = collateral_owner or urn_address
-        w = dai_recipient or urn_address
+        w = usdv_recipient or urn_address
         assert isinstance(v, Address)
         assert isinstance(w, Address)
 
@@ -295,8 +295,8 @@ class Vat(Contract):
                         'frob', [ilk.toBytes(), urn_address.address, v.address, w.address, dink.value, dart.value])
 
     def get_wipe_all_dart(self, ilk: Ilk, urn: Address) -> Wad:
-        """Returns the amount of Dai required to wipe an urn without leaving any dust
-        adapted from https://github.com/makerdao/dss-proxy-actions/blob/master/src/DssProxyActions.sol#L200"""
+        """Returns the amount of Usdv required to wipe an urn without leaving any dust
+        adapted from https://github.com/velerofinance/dss-proxy-actions/blob/master/src/DssProxyActions.sol#L200"""
         assert isinstance(urn, Address)
         assert isinstance(ilk, Ilk)
         assert ilk.rate >= Ray.from_number(1)
@@ -363,8 +363,8 @@ class Vat(Contract):
     def past_frobs(self, from_block: int, to_block: int = None, ilk: Ilk = None, chunk_size=20000) -> List[LogFrob]:
         """Synchronously retrieve a list showing which ilks and urns have been frobbed.
          Args:
-            from_block: Oldest Ethereum block to retrieve the events from.
-            to_block: Optional newest Ethereum block to retrieve the events from, defaults to current block
+            from_block: Oldest Velas block to retrieve the events from.
+            to_block: Optional newest Velas block to retrieve the events from, defaults to current block
             ilk: Optionally filter frobs by ilk.name
             chunk_size: Number of blocks to fetch from chain at one time, for performance tuning
          Returns:
@@ -377,8 +377,8 @@ class Vat(Contract):
                    include_forks=True, include_moves=True, chunk_size=20000) -> List[object]:
         """Synchronously retrieve a unordered list of vat activity, optionally filtered by collateral type.
         Args:
-            from_block: Oldest Ethereum block to retrieve the events from.
-            to_block: Optional newest Ethereum block to retrieve the events from, defaults to current block
+            from_block: Oldest Velas block to retrieve the events from.
+            to_block: Optional newest Velas block to retrieve the events from, defaults to current block
             ilk: Optionally filter frobs by ilk.name
             chunk_size: Number of blocks to fetch from chain at one time, for performance tuning
         Returns:
@@ -460,7 +460,7 @@ class Spotter(Contract):
     """A client for the `Spotter` contract, which interacts with Vat for the purpose of managing collateral prices.
     Users generally have no need to interact with this contract; it is included for unit testing purposes.
 
-    Ref. <https://github.com/makerdao/dss-deploy/blob/master/src/poke.sol>
+    Ref. <https://github.com/velerofinance/dss-deploy/blob/master/src/poke.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/Spotter.abi')
@@ -496,10 +496,10 @@ class Spotter(Contract):
 
 
 class Vow(Contract):
-    """A client for the `Vow` contract, which manages liquidation of surplus Dai and settlement of collateral debt.
+    """A client for the `Vow` contract, which manages liquidation of surplus Usdv and settlement of collateral debt.
     Specifically, this contract is useful for Flap and Flop auctions.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/heal.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/heal.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/Vow.abi')
@@ -562,7 +562,7 @@ class Vow(Contract):
 
     def heal(self, rad: Rad) -> Transact:
         assert isinstance(rad, Rad)
-        logger.info(f"Healing joy={self.vat.dai(self.address)} woe={self.woe()}")
+        logger.info(f"Healing joy={self.vat.usdv(self.address)} woe={self.woe()}")
 
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'heal', [rad.value])
 
@@ -579,7 +579,7 @@ class Vow(Contract):
 
     def flap(self) -> Transact:
         """Initiate a surplus auction"""
-        logger.info(f"Initiating a flap auction with joy={self.vat.dai(self.address)}")
+        logger.info(f"Initiating a flap auction with joy={self.vat.usdv(self.address)}")
 
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'flap', [])
 
@@ -590,7 +590,7 @@ class Vow(Contract):
 class Jug(Contract):
     """A client for the `Jug` contract, which manages stability fees.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/jug.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/jug.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/Jug.abi')
@@ -642,7 +642,7 @@ class Cat(Contract):
     """A client for the `Cat` contract, used to liquidate unsafe Urns (CDPs).
     Specifically, this contract is useful for Flip auctions.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/cat.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/cat.sol>
     """
 
     # This information is read from the `Bite` event emitted from `Cat.bite`
@@ -706,7 +706,7 @@ class Cat(Contract):
         litter: Rad = self.litter()
         room: Rad = box - litter
         if litter >= box:
-            logger.debug(f"biting {urn.address} would exceed maximum Dai out for liquidation")
+            logger.debug(f"biting {urn.address} would exceed maximum Usdv out for liquidation")
             return False
         if room < ilk.dust:
             return False
@@ -767,7 +767,7 @@ class Cat(Contract):
         `LogBite` events are emitted every time someone bites a CDP.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -786,7 +786,7 @@ class Dog(Contract):
     """A client for the `Dog` contract, used to liquidate unsafe vaults.
     Specifically, this contract is useful for Clip auctions.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/dog.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/dog.sol>
     """
 
     # This information is read from the `Bark` event emitted from `Dog.bark`
@@ -886,7 +886,7 @@ class Dog(Contract):
         `LogBark` events are emitted every time someone bites a vault.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -901,7 +901,7 @@ class Dog(Contract):
 class Pot(Contract):
     """A client for the `Pot` contract, which implements the DSR.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/pot.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/pot.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/Pot.abi')
@@ -916,7 +916,7 @@ class Pot(Contract):
         self._contract = self._get_contract(web3, self.abi, address)
 
     def approve(self, source: Address, approval_function, **kwargs):
-        """Approve the pot to access Dai from our Urns"""
+        """Approve the pot to access Usdv from our Urns"""
         assert isinstance(source, Address)
         assert(callable(approval_function))
 
@@ -954,7 +954,7 @@ class Pot(Contract):
 class TokenFaucet(Contract):
     """A client for the `TokenFaucet` contract, to obtain ERC-20 tokens on testnets for testing purposes.
 
-    Ref. <https://github.com/makerdao/token-faucet/blob/master/src/TokenFaucet.sol>
+    Ref. <https://github.com/velerofinance/token-faucet/blob/master/src/TokenFaucet.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/TokenFaucet.abi')

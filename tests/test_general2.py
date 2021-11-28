@@ -25,7 +25,7 @@ from pymaker.gas import FixedGasPrice
 from pymaker.numeric import Wad
 from pymaker.proxy import DSProxy, DSProxyCache
 from pymaker.token import DSToken
-from pymaker.util import synchronize, eth_balance
+from pymaker.util import synchronize, vlx_balance
 
 
 class TestTransact:
@@ -181,25 +181,25 @@ class TestTransact:
 
     def test_eth_transfer(self):
         # given
-        initial_balance = eth_balance(self.web3, self.second_address)
+        initial_balance = vlx_balance(self.web3, self.second_address)
 
         # when
         eth_transfer(self.web3, self.second_address, Wad.from_number(1.5)).transact()
 
         # then
-        assert eth_balance(self.web3, self.second_address) == initial_balance + Wad.from_number(1.5)
+        assert vlx_balance(self.web3, self.second_address) == initial_balance + Wad.from_number(1.5)
 
     def test_eth_transfer_from_other_account(self):
         # given
-        initial_balance_second_address = eth_balance(self.web3, self.second_address)
-        initial_balance_third_address = eth_balance(self.web3, self.third_address)
+        initial_balance_second_address = vlx_balance(self.web3, self.second_address)
+        initial_balance_third_address = vlx_balance(self.web3, self.third_address)
 
         # when
         eth_transfer(self.web3, self.third_address, Wad.from_number(1.5)).transact(from_address=self.second_address)
 
         # then
-        assert eth_balance(self.web3, self.second_address) < initial_balance_second_address
-        assert eth_balance(self.web3, self.third_address) == initial_balance_third_address + Wad.from_number(1.5)
+        assert vlx_balance(self.web3, self.second_address) < initial_balance_second_address
+        assert vlx_balance(self.web3, self.third_address) == initial_balance_third_address + Wad.from_number(1.5)
 
     def test_should_raise_exception_on_unknown_kwarg(self):
         # expect
@@ -281,7 +281,7 @@ class TestTransactReplace:
         # when
         def second_send_transaction(transaction):
             # TestRPC doesn't support `sendTransaction` calls with the `nonce` parameter
-            # (unlike proper Ethereum nodes which handle it very well)
+            # (unlike proper Velas nodes which handle it very well)
             transaction_without_nonce = {key: transaction[key] for key in transaction if key != 'nonce'}
             return original_send_transaction(transaction_without_nonce)
 

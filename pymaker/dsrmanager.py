@@ -20,7 +20,7 @@
 from web3 import Web3
 from pymaker import Address, Contract, Transact
 from pymaker.dss import Pot
-from pymaker.join import DaiJoin
+from pymaker.join import UsdvJoin
 from pymaker.numeric import Wad, Rad
 from pymaker.token import DSToken
 
@@ -30,7 +30,7 @@ class DsrManager(Contract):
     A client for the `DsrManger` contract, which reduces the need for proxies
     when interacting with the Pot contract.
 
-    Ref. <https://github.com/makerdao/dsr-manager/blob/master/src/DsrManager.sol>
+    Ref. <https://github.com/velerofinance/dsr-manager/blob/master/src/DsrManager.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/DsrManager.abi')
@@ -48,13 +48,13 @@ class DsrManager(Contract):
         address = Address(self._contract.functions.pot().call())
         return Pot(self.web3, address)
 
-    def dai(self) -> DSToken:
-        address = Address(self._contract.functions.dai().call())
+    def usdv(self) -> DSToken:
+        address = Address(self._contract.functions.usdv().call())
         return DSToken(self.web3, address)
 
-    def dai_adapter(self) -> DaiJoin:
-        address = Address(self._contract.functions.daiJoin().call())
-        return DaiJoin(self.web3, address)
+    def usdv_adapter(self) -> UsdvJoin:
+        address = Address(self._contract.functions.usdvJoin().call())
+        return UsdvJoin(self.web3, address)
 
     def supply(self) -> Wad:
         """Total supply of pie locked in Pot through DsrManager"""
@@ -66,38 +66,38 @@ class DsrManager(Contract):
 
         return Wad(self._contract.functions.pieOf(usr.address).call())
 
-    def dai_of(self, usr: Address) -> Rad:
+    def usdv_of(self, usr: Address) -> Rad:
         """
-        Internal Dai balance of a given usr address - current Chi is used
-        i.e. Dai balance potentially stale
+        Internal Usdv balance of a given usr address - current Chi is used
+        i.e. Usdv balance potentially stale
         """
         assert isinstance(usr, Address)
 
         pie = self.pie_of(usr)
         chi = self.pot().chi()
 
-        dai = Rad(pie) * Rad(chi)
+        usdv = Rad(pie) * Rad(chi)
 
-        return dai
+        return usdv
 
-    def join(self, dst: Address, dai: Wad) -> Transact:
-        """Lock a given amount of ERC20 Dai into the DSR Contract and give to dst address """
+    def join(self, dst: Address, usdv: Wad) -> Transact:
+        """Lock a given amount of ERC20 USDV into the DSR Contract and give to dst address """
         assert isinstance(dst, Address)
-        assert isinstance(dai, Wad)
+        assert isinstance(usdv, Wad)
 
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'join',
-                        [dst.address, dai.value])
+                        [dst.address, usdv.value])
 
-    def exit(self, dst: Address, dai: Wad) -> Transact:
-        """ Free a given amount of ERC20 Dai from the DSR Contract and give to dst address """
+    def exit(self, dst: Address, usdv: Wad) -> Transact:
+        """ Free a given amount of ERC20 Usdv from the DSR Contract and give to dst address """
         assert isinstance(dst, Address)
-        assert isinstance(dai, Wad)
+        assert isinstance(usdv, Wad)
 
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'exit',
-                        [dst.address, dai.value])
+                        [dst.address, usdv.value])
 
     def exitAll(self, dst: Address) -> Transact:
-        """ Free all ERC20 Dai from the DSR Contract and give to dst address """
+        """ Free all ERC20 Usdv from the DSR Contract and give to dst address """
         assert isinstance(dst, Address)
 
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'exitAll', [dst.address])

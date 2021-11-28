@@ -22,7 +22,7 @@ from pymaker.util import synchronize
 from web3 import HTTPProvider
 from web3 import Web3
 
-from pymaker.token import DSToken, DSEthToken, ERC20Token
+from pymaker.token import DSToken, DSVlxToken, ERC20Token
 
 
 class TestERC20Token:
@@ -255,17 +255,17 @@ class TestDSToken:
         assert repr(self.dstoken) == f"DSToken('{self.dstoken.address}')"
 
 
-class TestDSEthToken:
+class TestDSVlxToken:
     def setup_method(self):
         self.web3 = Web3(HTTPProvider("http://localhost:8555"))
         self.web3.eth.defaultAccount = self.web3.eth.accounts[0]
         self.our_address = Address(self.web3.eth.defaultAccount)
-        self.dsethtoken = DSEthToken.deploy(self.web3)
+        self.dsethtoken = DSVlxToken.deploy(self.web3)
 
     def test_fail_when_no_contract_under_that_address(self):
         # expect
         with pytest.raises(Exception):
-            DSEthToken(web3=self.web3, address=Address('0xdeadadd1e5500000000000000000000000000000'))
+            DSVlxToken(web3=self.web3, address=Address('0xdeadadd1e5500000000000000000000000000000'))
 
     def test_deposit(self):
         # when
@@ -285,4 +285,4 @@ class TestDSEthToken:
         assert self.dsethtoken.balance_of(self.our_address) == Wad(60000)
 
     def test_should_have_printable_representation(self):
-        assert repr(self.dsethtoken) == f"DSEthToken('{self.dsethtoken.address}')"
+        assert repr(self.dsethtoken) == f"DSVlxToken('{self.dsethtoken.address}')"

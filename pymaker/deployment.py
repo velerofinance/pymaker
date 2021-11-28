@@ -30,7 +30,7 @@ from pymaker.auth import DSGuard
 from pymaker.etherdelta import EtherDelta
 from pymaker.collateral import Collateral
 from pymaker.dss import Cat, Dog, Jug, Pot, Spotter, TokenFaucet, Vat, Vow
-from pymaker.join import DaiJoin, GemJoin, GemJoin5
+from pymaker.join import UsdvJoin, GemJoin, GemJoin5
 from pymaker.proxy import ProxyRegistry, DssProxyActionsDsr
 from pymaker.feed import DSValue
 from pymaker.gas import DefaultGasPrice
@@ -39,7 +39,7 @@ from pymaker.numeric import Wad, Ray
 from pymaker.oracles import OSM
 from pymaker.sai import Tub, Tap, Top, Vox
 from pymaker.shutdown import ShutdownModule, End
-from pymaker.token import DSToken, DSEthToken
+from pymaker.token import DSToken, DSVlxToken
 from pymaker.vault import DSVault
 from pymaker.cdpmanager import CdpManager
 from pymaker.dsrmanager import DsrManager
@@ -54,7 +54,7 @@ def deploy_contract(web3: Web3, contract_name: str, args: Optional[list] = None)
         args: Optional list of contract constructor parameters.
 
     Returns:
-        Ethereum address of the newly deployed contract, as a :py:class:`pymaker.Address` instance.
+        Velas address of the newly deployed contract, as a :py:class:`pymaker.Address` instance.
     """
     assert(isinstance(web3, Web3))
     assert(isinstance(contract_name, str))
@@ -71,7 +71,7 @@ def deploy_contract(web3: Web3, contract_name: str, args: Optional[list] = None)
 
 
 class Deployment:
-    """Represents a test deployment of the Maker smart contract ecosystem for single collateral Dai (SCD).
+    """Represents a test deployment of the Maker smart contract ecosystem for single collateral USDV (SCD).
 
     Creating an instance of this class creates a testrpc web3 provider with the entire set
     of Maker smart contracts deployed to it. It is used in unit tests of PyMaker, and also in
@@ -81,11 +81,11 @@ class Deployment:
         web3 = Web3(HTTPProvider("http://localhost:8555"))
         web3.eth.defaultAccount = web3.eth.accounts[0]
         our_address = Address(web3.eth.defaultAccount)
-        sai = DSToken.deploy(web3, 'DAI')
+        sai = DSToken.deploy(web3, 'USDV')
         sin = DSToken.deploy(web3, 'SIN')
         skr = DSToken.deploy(web3, 'PETH')
-        gem = DSToken.deploy(web3, 'WETH')
-        gov = DSToken.deploy(web3, 'MKR')
+        gem = DSToken.deploy(web3, 'WVLX')
+        gov = DSToken.deploy(web3, 'VDGT')
         pip = DSValue.deploy(web3)
         pep = DSValue.deploy(web3)
         pit = DSVault.deploy(web3)
@@ -146,7 +146,7 @@ class Deployment:
 
 
 class DssDeployment:
-    """Represents a Dai Stablecoin System deployment for multi-collateral Dai (MCD).
+    """Represents a Usdv Stablecoin System deployment for multi-collateral Usdv (MCD).
 
     Static method `from_json()` should be used to instantiate all the objet of
     a deployment from a json description of all the system addresses.
@@ -159,7 +159,7 @@ class DssDeployment:
 
     class Config:
         def __init__(self, pause: DSPause, vat: Vat, vow: Vow, jug: Jug, cat: Cat, dog: Dog, flapper: Flapper,
-                     flopper: Flopper, pot: Pot, dai: DSToken, dai_join: DaiJoin, mkr: DSToken,
+                     flopper: Flopper, pot: Pot, usdv: DSToken, usdv_join: UsdvJoin, vdgt: DSToken,
                      spotter: Spotter, ds_chief: DSChief, esm: ShutdownModule, end: End,
                      proxy_registry: ProxyRegistry, dss_proxy_actions: DssProxyActionsDsr, cdp_manager: CdpManager,
                      dsr_manager: DsrManager, faucet: TokenFaucet, collaterals: Optional[Dict[str, Collateral]] = None):
@@ -172,9 +172,9 @@ class DssDeployment:
             self.flapper = flapper
             self.flopper = flopper
             self.pot = pot
-            self.dai = dai
-            self.dai_join = dai_join
-            self.mkr = mkr
+            self.usdv = usdv
+            self.usdv_join = usdv_join
+            self.vdgt = vdgt
             self.spotter = spotter
             self.ds_chief = ds_chief
             self.esm = esm
@@ -205,12 +205,12 @@ class DssDeployment:
             jug = Jug(web3, Address(conf['MCD_JUG']))
             cat = Cat(web3, Address(conf['MCD_CAT'])) if address_in_configs('MCD_CAT', conf) else None
             dog = Dog(web3, Address(conf['MCD_DOG'])) if address_in_configs('MCD_DOG', conf) else None
-            dai = DSToken(web3, Address(conf['MCD_DAI']))
-            dai_adapter = DaiJoin(web3, Address(conf['MCD_JOIN_DAI']))
+            usdv = DSToken(web3, Address(conf['MCD_USDV']))
+            usdv_adapter = UsdvJoin(web3, Address(conf['MCD_JOIN_USDV']))
             flapper = Flapper(web3, Address(conf['MCD_FLAP']))
             flopper = Flopper(web3, Address(conf['MCD_FLOP']))
             pot = Pot(web3, Address(conf['MCD_POT']))
-            mkr = DSToken(web3, Address(conf['MCD_GOV']))
+            vdgt = DSToken(web3, Address(conf['MCD_GOV']))
             spotter = Spotter(web3, Address(conf['MCD_SPOT']))
             ds_chief = DSChief(web3, Address(conf['MCD_ADM']))
             esm = ShutdownModule(web3, Address(conf['MCD_ESM']))
@@ -224,8 +224,8 @@ class DssDeployment:
             collaterals = {}
             for name in DssDeployment.Config._infer_collaterals_from_addresses(conf.keys()):
                 ilk = vat.ilk(name[0].replace('_', '-'))
-                if name[1] == "ETH":
-                    gem = DSEthToken(web3, Address(conf[name[1]]))
+                if name[1] == "ETH" or name[1] == "VLX":
+                    gem = DSVlxToken(web3, Address(conf[name[1]]))
                 else:
                     gem = DSToken(web3, Address(conf[name[1]]))
 
@@ -256,7 +256,7 @@ class DssDeployment:
                 collaterals[ilk.name] = collateral
 
             return DssDeployment.Config(pause, vat, vow, jug, cat, dog, flapper, flopper, pot,
-                                        dai, dai_adapter, mkr, spotter, ds_chief, esm, end,
+                                        usdv, usdv_adapter, vdgt, spotter, ds_chief, esm, end,
                                         proxy_registry, dss_proxy_actions, cdp_manager,
                                         dsr_manager, faucet, collaterals)
 
@@ -283,9 +283,9 @@ class DssDeployment:
                 'MCD_FLAP': self.flapper.address.address,
                 'MCD_FLOP': self.flopper.address.address,
                 'MCD_POT': self.pot.address.address,
-                'MCD_DAI': self.dai.address.address,
-                'MCD_JOIN_DAI': self.dai_join.address.address,
-                'MCD_GOV': self.mkr.address.address,
+                'MCD_USDV': self.usdv.address.address,
+                'MCD_JOIN_USDV': self.usdv_join.address.address,
+                'MCD_GOV': self.vdgt.address.address,
                 'MCD_SPOT': self.spotter.address.address,
                 'MCD_ADM': self.ds_chief.address.address,
                 'MCD_ESM': self.esm.address.address,
@@ -335,9 +335,9 @@ class DssDeployment:
         self.flapper = config.flapper
         self.flopper = config.flopper
         self.pot = config.pot
-        self.dai = config.dai
-        self.dai_adapter = config.dai_join
-        self.mkr = config.mkr
+        self.usdv = config.usdv
+        self.usdv_adapter = config.usdv_join
+        self.vdgt = config.vdgt
         self.collaterals = config.collaterals
         self.spotter = config.spotter
         self.ds_chief = config.ds_chief
@@ -374,19 +374,19 @@ class DssDeployment:
 
         return DssDeployment.from_json(web3=web3, conf=open(addresses_path, "r").read())
 
-    def approve_dai(self, usr: Address, **kwargs):
+    def approve_usdv(self, usr: Address, **kwargs):
         """
-        Allows the user to draw Dai from and repay Dai to their CDPs.
+        Allows the user to draw Usdv from and repay Usdv to their CDPs.
 
         Args
-            usr: Recipient of Dai from one or more CDPs
+            usr: Recipient of Usdv from one or more CDPs
         """
         assert isinstance(usr, Address)
 
         gas_price = kwargs['gas_price'] if 'gas_price' in kwargs else DefaultGasPrice()
-        self.dai_adapter.approve(approval_function=hope_directly(from_address=usr, gas_price=gas_price),
-                                 source=self.vat.address)
-        self.dai.approve(self.dai_adapter.address).transact(from_address=usr, gas_price=gas_price)
+        self.usdv_adapter.approve(approval_function=hope_directly(from_address=usr, gas_price=gas_price),
+                                  source=self.vat.address)
+        self.usdv.approve(self.usdv_adapter.address).transact(from_address=usr, gas_price=gas_price)
 
     def active_auctions(self) -> dict:
         flips = {}

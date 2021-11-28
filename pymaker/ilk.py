@@ -23,7 +23,7 @@ from pymaker.numeric import Wad, Ray, Rad
 
 class Ilk:
     """Models one collateral type, the combination of a token and a set of risk parameters.
-    For example, ETH-A and ETH-B are different collateral types with the same underlying token (WETH) but with
+    For example, VLX-A and VLX-B are different collateral types with the same underlying token (WVLX) but with
     different risk parameters.
     """
 

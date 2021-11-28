@@ -62,28 +62,28 @@ class Join(Contract):
                         'exit', [usr.address, value.value])
 
 
-class DaiJoin(Join):
-    """A client for the `DaiJoin` contract, which allows the CDP holder to draw Dai from their Urn and repay it.
+class UsdvJoin(Join):
+    """A client for the `UsdvJoin` contract, which allows the CDP holder to draw USDV from their Urn and repay it.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/join.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/join.sol>
     """
 
-    abi = Contract._load_abi(__name__, 'abi/DaiJoin.abi')
-    bin = Contract._load_bin(__name__, 'abi/DaiJoin.bin')
+    abi = Contract._load_abi(__name__, 'abi/UsdvJoin.abi')
+    bin = Contract._load_bin(__name__, 'abi/UsdvJoin.bin')
 
     def __init__(self, web3: Web3, address: Address):
-        super(DaiJoin, self).__init__(web3, address)
-        self._token = self.dai()
+        super(UsdvJoin, self).__init__(web3, address)
+        self._token = self.usdv()
 
-    def dai(self) -> DSToken:
-        address = Address(self._contract.functions.dai().call())
+    def usdv(self) -> DSToken:
+        address = Address(self._contract.functions.usdv().call())
         return DSToken(self.web3, address)
 
 
 class GemJoin(Join):
     """A client for the `GemJoin` contract, which allows the user to deposit collateral into a new or existing vault.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/join.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/join.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/GemJoin.abi')
@@ -107,7 +107,7 @@ class GemJoin(Join):
 class GemJoin5(GemJoin):
     """A client for the `GemJoin5` contract, which allows the user to deposit collateral into a new or existing vault.
 
-    Ref. <https://github.com/makerdao/dss-deploy/blob/master/src/join.sol#L274>
+    Ref. <https://github.com/velerofinance/dss-deploy/blob/master/src/join.sol#L274>
     """
     abi = Contract._load_abi(__name__, 'abi/GemJoin5.abi')
     bin = Contract._load_bin(__name__, 'abi/GemJoin5.bin')

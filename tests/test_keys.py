@@ -34,7 +34,7 @@ def test_local_accounts():
     register_key_file(web3, keyfile_path, passfile_path)
 
     # and
-    # [as ganache does not know this address, we need to send some ETH to it first]
+    # [as ganache does not know this address, we need to send some VLX to it first]
     eth_transfer(web3, Address(web3.eth.defaultAccount), Wad.from_number(100)) \
         .transact(from_address=Address(web3.eth.accounts[0]))
 
@@ -59,7 +59,7 @@ def test_local_accounts_register_key():
     register_key(web3, f"key_file={keyfile_path},pass_file={passfile_path}")
 
     # and
-    # [as ganache does not know this address, we need to send some ETH to it first]
+    # [as ganache does not know this address, we need to send some VLX to it first]
     eth_transfer(web3, Address(web3.eth.defaultAccount), Wad.from_number(100)) \
         .transact(from_address=Address(web3.eth.accounts[0]))
 

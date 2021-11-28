@@ -52,7 +52,7 @@ class Dsr:
     def chi(self) -> Ray:
         return self.mcd.pot.chi()
 
-    def get_total_dai(self) -> Wad:
+    def get_total_usdv(self) -> Wad:
         return self.mcd.pot.pie() * self.chi()
 
     def dsr(self) -> Ray:
@@ -67,9 +67,9 @@ class Dsr:
 
         slice = self.mcd.pot.pie_of(proxy)
         portion = slice / total_pie
-        dai_in_pot = self.mcd.vat.dai(self.mcd.pot.address)
+        usdv_in_pot = self.mcd.vat.usdv(self.mcd.pot.address)
 
-        return Wad(dai_in_pot * portion)
+        return Wad(usdv_in_pot * portion)
 
     def join(self, amount: Wad, proxy: DSProxy) -> Transact:
         assert (isinstance(amount, Wad))
@@ -80,7 +80,7 @@ class Dsr:
                                     self.mcd.web3,
                                     "join(address,address,uint256)",
                                     [
-                                        self.mcd.dai_adapter.address.address,
+                                        self.mcd.usdv_adapter.address.address,
                                         self.mcd.pot.address.address,
                                         amount.value
                                     ])
@@ -95,7 +95,7 @@ class Dsr:
                                     self.mcd.web3,
                                     "exit(address,address,uint256)",
                                     [
-                                        self.mcd.dai_adapter.address.address,
+                                        self.mcd.usdv_adapter.address.address,
                                         self.mcd.pot.address.address,
                                         amount.value
                                     ])
@@ -109,7 +109,7 @@ class Dsr:
                                     self.mcd.web3,
                                     "exitAll(address,address)",
                                     [
-                                        self.mcd.dai_adapter.address.address,
+                                        self.mcd.usdv_adapter.address.address,
                                         self.mcd.pot.address.address
                                     ])
                                 )

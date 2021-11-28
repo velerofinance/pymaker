@@ -46,42 +46,42 @@ for collateral in mcd.collaterals.values():
           f"OSM price {round(float(osm.peek()), 3):>14}, "
           f"rate {float(collateral.ilk.rate):<18}, using {liquidation} liquidations")
 
-# Choose the desired collateral; in this case we'll wrap some Eth
-collateral = mcd.collaterals['ETH-A']
+# Choose the desired collateral; in this case we'll wrap some Vlx
+collateral = mcd.collaterals['VLX-A']
 ilk = collateral.ilk
 
 if run_transactions:
-    # Determine minimum amount of Dai which can be drawn
-    dai_amount = Wad(ilk.dust)
-    # Set an amount of collateral to join and an amount of Dai to draw
+    # Determine minimum amount of Usdv which can be drawn
+    usdv_amount = Wad(ilk.dust)
+    # Set an amount of collateral to join and an amount of Usdv to draw
     collateral_amount = Wad.from_number(105)
     if collateral.gem.balance_of(our_address) > collateral_amount:
         if collateral.ilk.name.startswith("ETH"):
             # Wrap ETH to produce WETH
             assert collateral.gem.deposit(collateral_amount).transact()
 
-        # Add collateral and allocate the desired amount of Dai
+        # Add collateral and allocate the desired amount of Usdv
         collateral.approve(our_address)
         assert collateral.adapter.join(our_address, collateral_amount).transact()
         assert mcd.vat.frob(ilk, our_address, dink=collateral_amount, dart=Wad(0)).transact()
-        assert mcd.vat.frob(ilk, our_address, dink=Wad(0), dart=dai_amount).transact()
+        assert mcd.vat.frob(ilk, our_address, dink=Wad(0), dart=usdv_amount).transact()
         print(f"Urn balance: {mcd.vat.urn(ilk, our_address)}")
-        print(f"Dai balance: {mcd.vat.dai(our_address)}")
+        print(f"Usdv balance: {mcd.vat.usdv(our_address)}")
 
-        # Mint and withdraw our Dai
-        mcd.approve_dai(our_address)
-        assert mcd.dai_adapter.exit(our_address, dai_amount).transact()
-        print(f"Dai balance after withdrawal:  {mcd.vat.dai(our_address)}")
+        # Mint and withdraw our Usdv
+        mcd.approve_usdv(our_address)
+        assert mcd.usdv_adapter.exit(our_address, usdv_amount).transact()
+        print(f"Usdv balance after withdrawal:  {mcd.vat.usdv(our_address)}")
 
-        # Repay (and burn) our Dai
-        assert mcd.dai_adapter.join(our_address, dai_amount).transact()
-        print(f"Dai balance after repayment:   {mcd.vat.dai(our_address)}")
+        # Repay (and burn) our Usdv
+        assert mcd.usdv_adapter.join(our_address, usdv_amount).transact()
+        print(f"Usdv balance after repayment:   {mcd.vat.usdv(our_address)}")
 
         # Withdraw our collateral; stability fee accumulation may make these revert
-        assert mcd.vat.frob(ilk, our_address, dink=Wad(0), dart=dai_amount*-1).transact()
+        assert mcd.vat.frob(ilk, our_address, dink=Wad(0), dart=usdv_amount * -1).transact()
         assert mcd.vat.frob(ilk, our_address, dink=collateral_amount*-1, dart=Wad(0)).transact()
         assert collateral.adapter.exit(our_address, collateral_amount).transact()
-        print(f"Dai balance w/o collateral:    {mcd.vat.dai(our_address)}")
+        print(f"Usdv balance w/o collateral:    {mcd.vat.usdv(our_address)}")
     else:
         print(f"Not enough {ilk.name} to join to the vat")
 

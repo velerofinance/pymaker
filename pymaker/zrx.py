@@ -259,7 +259,7 @@ class ZrxExchange(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the _0x_ `Exchange` contract.
+        address: Velas address of the _0x_ `Exchange` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/Exchange.abi')
@@ -336,7 +336,7 @@ class ZrxExchange(Contract):
         `LogFill` events are emitted by the 0x contract every time someone fills an order.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -353,7 +353,7 @@ class ZrxExchange(Contract):
         `LogCancel` events are emitted by the 0x contract every time someone cancels an order.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:

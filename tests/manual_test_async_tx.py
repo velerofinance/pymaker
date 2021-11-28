@@ -42,7 +42,7 @@ register_keys(web3, [sys.argv[2]])      # ex: key_file=~keys/default-account.jso
 
 mcd = DssDeployment.from_node(web3)
 our_address = Address(web3.eth.defaultAccount)
-weth = DssDeployment.from_node(web3).collaterals['ETH-A'].gem
+wvlx = DssDeployment.from_node(web3).collaterals['VLX-A'].gem
 
 GWEI = 1000000000
 slow_gas = GeometricGasPrice(initial_price=int(15 * GWEI), every_secs=42, max_price=200 * GWEI)
@@ -56,32 +56,32 @@ class TestApp:
         self.shutdown()
 
     def test_replacement(self):
-        first_tx = weth.deposit(Wad(4))
+        first_tx = wvlx.deposit(Wad(4))
         logging.info(f"Submitting first TX with gas price deliberately too low")
         self._run_future(first_tx.transact_async(gas_price=slow_gas))
         time.sleep(0.5)
 
-        second_tx = weth.deposit(Wad(6))
+        second_tx = wvlx.deposit(Wad(6))
         logging.info(f"Replacing first TX with legitimate gas price")
         second_tx.transact(replace=first_tx, gas_price=fast_gas)
 
         assert first_tx.replaced
 
     def test_simultaneous(self):
-        self._run_future(weth.deposit(Wad(1)).transact_async(gas_price=fast_gas))
-        self._run_future(weth.deposit(Wad(3)).transact_async(gas_price=fast_gas))
-        self._run_future(weth.deposit(Wad(5)).transact_async(gas_price=fast_gas))
-        self._run_future(weth.deposit(Wad(7)).transact_async(gas_price=fast_gas))
+        self._run_future(wvlx.deposit(Wad(1)).transact_async(gas_price=fast_gas))
+        self._run_future(wvlx.deposit(Wad(3)).transact_async(gas_price=fast_gas))
+        self._run_future(wvlx.deposit(Wad(5)).transact_async(gas_price=fast_gas))
+        self._run_future(wvlx.deposit(Wad(7)).transact_async(gas_price=fast_gas))
         time.sleep(33)
 
     def shutdown(self):
-        balance = weth.balance_of(our_address)
-        if Wad(0) < balance < Wad(100):  # this account's tiny WETH balance came from this test
-            logging.info(f"Unwrapping {balance} WETH")
-            assert weth.withdraw(balance).transact(gas_price=fast_gas)
+        balance = wvlx.balance_of(our_address)
+        if Wad(0) < balance < Wad(100):  # this account's tiny WVLX balance came from this test
+            logging.info(f"Unwrapping {balance} WVLX")
+            assert wvlx.withdraw(balance).transact(gas_price=fast_gas)
         elif balance >= Wad(22):  # user already had a balance, so unwrap what a successful test would have consumed
-            logging.info(f"Unwrapping 12 WETH")
-            assert weth.withdraw(Wad(22)).transact(gas_price=fast_gas)
+            logging.info(f"Unwrapping 12 WVLX")
+            assert wvlx.withdraw(Wad(22)).transact(gas_price=fast_gas)
 
     @staticmethod
     def _run_future(future):

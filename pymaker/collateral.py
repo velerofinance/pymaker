@@ -31,8 +31,8 @@ logger = logging.getLogger()
 
 class Collateral:
     """The `Collateral` object wraps accounting information in the Ilk with token-wide artifacts shared across
-    multiple collateral types for the same token.  For example, ETH-A and ETH-B are represented by different Ilks,
-    but will share the same gem (WETH token), GemJoin instance, and Flipper contract.
+    multiple collateral types for the same token.  For example, VLX-A and VLX-B are represented by different Ilks,
+    but will share the same gem (WVLX token), GemJoin instance, and Flipper contract.
     """
 
     def __init__(self, ilk: Ilk, gem: ERC20Token, adapter: GemJoin, auction: AuctionContract, pip, vat: Contract):

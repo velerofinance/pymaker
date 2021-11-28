@@ -19,33 +19,33 @@ import pytest
 from pymaker import Address
 from tests.helpers import time_travel_by
 from pymaker.numeric import Wad, Rad, Ray
-from pymaker.deployment import DaiJoin, DssDeployment
+from pymaker.deployment import UsdvJoin, DssDeployment
 from pymaker.dss import Pot
 from pymaker.token import DSToken
 from tests.test_dss import wrap_eth, frob
 
 
-def mint_dai(mcd: DssDeployment, amount: Wad, ilkName: str, our_address: Address):
-    startingAmount = mcd.dai.balance_of(our_address)
-    dai = amount
-    # Add collateral to our CDP and draw internal Dai
+def mint_usdv(mcd: DssDeployment, amount: Wad, ilkName: str, our_address: Address):
+    startingAmount = mcd.usdv.balance_of(our_address)
+    usdv = amount
+    # Add collateral to our CDP and draw internal Usdv
     collateral=mcd.collaterals[ilkName]
     ilk = mcd.vat.ilk(collateral.ilk.name)
     dink = Wad.from_number(1)
-    dart = Wad( Rad(dai) / Rad(ilk.rate))
+    dart = Wad( Rad(usdv) / Rad(ilk.rate))
     wrap_eth(mcd, our_address, dink)
     assert collateral.gem.balance_of(our_address) >= dink
     assert collateral.gem.approve(collateral.adapter.address).transact(from_address=our_address)
     assert collateral.adapter.join(our_address, dink).transact(from_address=our_address)
     frob(mcd, collateral, our_address, dink=dink, dart=dart)
 
-    # Exit to Dai Token and make some checks
-    assert mcd.vat.hope(mcd.dai_adapter.address).transact(from_address=our_address)
-    assert mcd.dai_adapter.exit(our_address, dai).transact(from_address=our_address)
-    assert mcd.dai.balance_of(our_address) == dai + startingAmount
+    # Exit to Usdv Token and make some checks
+    assert mcd.vat.hope(mcd.usdv_adapter.address).transact(from_address=our_address)
+    assert mcd.usdv_adapter.exit(our_address, usdv).transact(from_address=our_address)
+    assert mcd.usdv.balance_of(our_address) == usdv + startingAmount
 
 
-pytest.global_dai = Wad(0)
+pytest.global_usdv = Wad(0)
 
 
 class TestDsrManager:
@@ -53,32 +53,32 @@ class TestDsrManager:
     def test_getters(self, mcd: DssDeployment):
         assert isinstance(mcd.dsr_manager.pot(), Pot)
         assert mcd.dsr_manager.pot().address.address == mcd.pot.address.address
-        assert isinstance(mcd.dsr_manager.dai(), DSToken)
-        assert mcd.dsr_manager.dai().address.address == mcd.dai.address.address
-        assert isinstance(mcd.dsr_manager.dai_adapter(), DaiJoin)
-        assert mcd.dsr_manager.dai_adapter().address.address == mcd.dai_adapter.address.address
+        assert isinstance(mcd.dsr_manager.usdv(), DSToken)
+        assert mcd.dsr_manager.usdv().address.address == mcd.usdv.address.address
+        assert isinstance(mcd.dsr_manager.usdv_adapter(), UsdvJoin)
+        assert mcd.dsr_manager.usdv_adapter().address.address == mcd.usdv_adapter.address.address
 
     def test_join(self, mcd: DssDeployment, our_address: Address):
 
-        # Mint 58 Dai and lock it in the Pot contract through DsrManager
-        more_dai = Wad.from_number(58)
-        mint_dai(mcd=mcd, amount=more_dai, ilkName='ETH-A', our_address=our_address)
-        dai = mcd.dai.balance_of(our_address)
-        assert mcd.dai.approve(mcd.dsr_manager.address).transact(from_address=our_address)
+        # Mint 58 Usdv and lock it in the Pot contract through DsrManager
+        more_usdv = Wad.from_number(58)
+        mint_usdv(mcd=mcd, amount=more_usdv, ilkName='ETH-A', our_address=our_address)
+        usdv = mcd.usdv.balance_of(our_address)
+        assert mcd.usdv.approve(mcd.dsr_manager.address).transact(from_address=our_address)
         assert mcd.dsr_manager.supply() == Wad(0)
 
-        # Join through DsrManager an ensure Dai Token balance is depleted
-        assert mcd.dsr_manager.join(our_address, dai).transact(from_address=our_address)
-        assert mcd.dai.balance_of(our_address) == Wad(0)
+        # Join through DsrManager an ensure Usdv Token balance is depleted
+        assert mcd.dsr_manager.join(our_address, usdv).transact(from_address=our_address)
+        assert mcd.usdv.balance_of(our_address) == Wad(0)
 
-        pytest.global_dai = dai
+        pytest.global_usdv = usdv
 
-    def test_supply_pie_dai(self, mcd: DssDeployment, our_address: Address):
+    def test_supply_pie_usdv(self, mcd: DssDeployment, our_address: Address):
 
-        dai = pytest.global_dai
+        usdv = pytest.global_usdv
         chi1 = mcd.pot.chi()
         # assert chi1 == Ray.from_number(1) Commented out in case there's some initial state on testchain
-        pie = Wad(Rad(dai) / Rad(chi1))
+        pie = Wad(Rad(usdv) / Rad(chi1))
         assert mcd.dsr_manager.supply() == pie
         assert mcd.dsr_manager.pie_of(our_address) == pie
 
@@ -86,19 +86,19 @@ class TestDsrManager:
         assert mcd.pot.drip().transact(from_address=our_address)
         chi2 = mcd.pot.chi()
         assert chi1 != chi2
-        dai = Rad(pie) * Rad(chi2)
-        assert mcd.dsr_manager.dai_of(our_address) == dai
+        usdv = Rad(pie) * Rad(chi2)
+        assert mcd.dsr_manager.usdv_of(our_address) == usdv
 
     def test_exit(self, mcd: DssDeployment, our_address: Address):
 
-        dai = pytest.global_dai
-        assert mcd.dai.balance_of(our_address) == Wad.from_number(0)
+        usdv = pytest.global_usdv
+        assert mcd.usdv.balance_of(our_address) == Wad.from_number(0)
         # since drip was called in previous test, there should be some amount left
-        assert mcd.dsr_manager.exit(our_address, dai).transact(from_address=our_address)
+        assert mcd.dsr_manager.exit(our_address, usdv).transact(from_address=our_address)
 
-        assert mcd.dai.balance_of(our_address) == dai
+        assert mcd.usdv.balance_of(our_address) == usdv
         assert mcd.dsr_manager.supply() != Wad(0)
 
         assert mcd.dsr_manager.exitAll(our_address).transact(from_address=our_address)
-        assert mcd.dai.balance_of(our_address) > dai
+        assert mcd.usdv.balance_of(our_address) > usdv
         assert mcd.dsr_manager.supply() == Wad(0)

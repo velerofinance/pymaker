@@ -32,7 +32,7 @@ from tests.helpers import is_hashable, wait_until_mock_called
 EXCHANGE_ADDR = sys.argv[1]
 SRAV2_URL = 'https://kovan-staging.ercdex.com/api'
 
-KOVAN_DAI = Address('0xc4375b7de8af5a38a93548eb8453a498222c4ff2')
+KOVAN_USDV = Address('0xc4375b7de8af5a38a93548eb8453a498222c4ff2')
 KOVAN_WETH = Address('0xd0a1e359811322d97991e03f863a0c30c2cf029c')
 
 
@@ -40,12 +40,12 @@ web3 = Web3(HTTPProvider('http://localhost:8545'))
 web3.eth.defaultAccount = web3.eth.accounts[0]
 
 exchange = ZrxExchangeV2(web3=web3, address=Address(EXCHANGE_ADDR))
-#exchange.approve([ERC20Token(web3=web3, address=KOVAN_DAI),
+#exchange.approve([ERC20Token(web3=web3, address=KOVAN_USDV),
 #                  ERC20Token(web3=web3, address=KOVAN_WETH)], directly())
 
 order = exchange.create_order(pay_asset=ERC20Asset(KOVAN_WETH),
                               pay_amount=Wad.from_number(0.1),
-                              buy_asset=ERC20Asset(KOVAN_DAI),
+                              buy_asset=ERC20Asset(KOVAN_USDV),
                               buy_amount=Wad.from_number(25),
                               expiration=int(time.time())+60*35)
 
@@ -55,7 +55,7 @@ order = exchange.sign_order(order)
 #print(order)
 
 #print(api.submit_order(order))
-#print(api.get_orders(KOVAN_WETH, KOVAN_DAI))
+#print(api.get_orders(KOVAN_WETH, KOVAN_USDV))
 print(api.get_orders_by_maker(Address(web3.eth.defaultAccount)))
 
 #print(exchange.past_fill(500))

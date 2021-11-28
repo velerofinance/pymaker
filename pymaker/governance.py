@@ -34,7 +34,7 @@ class DSPause(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSPause` contract.
+        address: Velas address of the `DSPause` contract.
     """
 
     class Plan:
@@ -97,7 +97,7 @@ class DSRoles(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSRoles` contract.
+        address: Velas address of the `DSRoles` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/DSRoles.abi')
@@ -158,7 +158,7 @@ class DSChief(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSChief` contract.
+        address: Velas address of the `DSChief` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/DSChief.abi')
@@ -235,7 +235,7 @@ class DSChief(Contract):
         `Etch` events are emitted by the ds-chief contract every time someone places a vote.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:

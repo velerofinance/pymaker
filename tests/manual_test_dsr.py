@@ -38,7 +38,7 @@ print(our_address)
 dsr_client = Dsr(mcd, our_address)
 
 print(f"Chi: {dsr_client.chi()}")
-print(f"Total DAI: {dsr_client.get_total_dai()}")
+print(f"Total USDV: {dsr_client.get_total_usdv()}")
 print(f"DSR: {dsr_client.dsr()}")
 
 proxy = dsr_client.get_proxy()
@@ -52,8 +52,8 @@ print(f"Proxy address: {proxy.address.address}")
 
 print(f"Balance: {dsr_client.get_balance(proxy.address)}")
 
-# approve proxy to use 10 DAI from account
-dsr_client.mcd.dai.approve(proxy.address, Wad.from_number(10)).transact()
+# approve proxy to use 10 USDV from account
+dsr_client.mcd.usdv.approve(proxy.address, Wad.from_number(10)).transact()
 
 dsr_client.join(Wad.from_number(2.2), proxy).transact()
 print(f"Balance: {dsr_client.get_balance(proxy.address)}")

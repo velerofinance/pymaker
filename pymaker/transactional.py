@@ -28,7 +28,7 @@ from pymaker.token import ERC20Token
 class TxManager(Contract):
     """A client for the `TxManager` contract.
 
-    `TxManager` allows to invoke multiple contract methods in one Ethereum transaction.
+    `TxManager` allows to invoke multiple contract methods in one Velas transaction.
     Each invocation is represented as an instance of the `Invocation` class, containing a
     contract address and a calldata.
 
@@ -39,11 +39,11 @@ class TxManager(Contract):
     have to be granted to the `TxManager`.
 
     You can find the source code of the `TxManager` contract here:
-    <https://github.com/makerdao/tx-manager>.
+    <https://github.com/velerofinance/tx-manager>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `TxManager` contract.
+        address: Velas address of the `TxManager` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/TxManager.abi')
@@ -81,7 +81,7 @@ class TxManager(Contract):
         return Address(self._contract.functions.owner().call())
 
     def execute(self, tokens: List[Address], invocations: List[Invocation]) -> Transact:
-        """Executes multiple contract methods in one Ethereum transaction.
+        """Executes multiple contract methods in one Velas transaction.
 
         Args:
             tokens: List of addresses of ERC20 token the invocations should be able to access.

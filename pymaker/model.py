@@ -44,7 +44,7 @@ class Token:
 
         return amount * Wad.from_number(10 ** (self.decimals - 18))
 
-    def is_eth(self) -> bool:
+    def is_vlx(self) -> bool:
         return self.address == Address('0x0000000000000000000000000000000000000000')
 
     def __eq__(self, other):

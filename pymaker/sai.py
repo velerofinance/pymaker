@@ -55,7 +55,7 @@ class Cup:
 class Tub(Contract):
     """A client for the `Tub` contract.
 
-    SAI is a simple version of the diversely collateralized DAI stablecoin.
+    SAI is a simple version of the diversely collateralized USDV stablecoin.
 
     In this model there is one type of underlying collateral (called gems).
     The SKR token represents claims on the system's excess gems, and is the
@@ -67,7 +67,7 @@ class Tub(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Tub` contract.
+        address: Velas address of the `Tub` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/SaiTub.abi')
@@ -150,10 +150,10 @@ class Tub(Contract):
         return Address(self._contract.functions.sin().call())
 
     def gov(self) -> Address:
-        """Get the MKR token.
+        """Get the VDGT token.
 
         Returns:
-            The address of the MKR token.
+            The address of the VDGT token.
         """
         return Address(self._contract.functions.gov().call())
 
@@ -182,7 +182,7 @@ class Tub(Contract):
         return Address(self._contract.functions.skr().call())
 
     def gem(self) -> Address:
-        """Get the collateral token (eg. W-ETH).
+        """Get the collateral token (eg. W-VLX).
 
         Returns:
             The address of the collateral token.
@@ -198,10 +198,10 @@ class Tub(Contract):
         return Address(self._contract.functions.pip().call())
 
     def pep(self) -> Address:
-        """Get the governance (MKR) price feed.
+        """Get the governance (VDGT) price feed.
 
         Returns:
-            The address of the governance (MKR) price feed, which could be a `DSValue`, a `DSCache`, `Mednianizer` etc.
+            The address of the governance (VDGT) price feed, which could be a `DSValue`, a `DSCache`, `Mednianizer` etc.
         """
         return Address(self._contract.functions.pep().call())
 
@@ -273,7 +273,7 @@ class Tub(Contract):
         """Get the internal debt price.
 
         Every invocation of this method calls `drip()` internally, so the value you receive is always up-to-date.
-        But as calling it doesn't result in an Ethereum transaction, the actual `_chi` value in the smart
+        But as calling it doesn't result in an Velas transaction, the actual `_chi` value in the smart
         contract storage does not get updated.
 
         Returns:
@@ -648,7 +648,7 @@ class Tap(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Tap` contract.
+        address: Velas address of the `Tap` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/SaiTap.abi')
@@ -852,7 +852,7 @@ class Top(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Top` contract.
+        address: Velas address of the `Top` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/SaiTop.abi')
@@ -907,7 +907,7 @@ class Vox(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `Vox` contract.
+        address: Velas address of the `Vox` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/SaiVox.abi')
@@ -942,7 +942,7 @@ class Vox(Contract):
         """Get the accrued holder fee (REF per SAI).
 
         Every invocation of this method calls `prod()` internally, so the value you receive is always up-to-date.
-        But as calling it doesn't result in an Ethereum transaction, the actual `_par` value in the smart
+        But as calling it doesn't result in an Velas transaction, the actual `_par` value in the smart
         contract storage does not get updated.
 
         Returns:

@@ -34,11 +34,11 @@ logger = logging.getLogger()
 class ShutdownModule(Contract):
     """A client for the `ESM` contract, which allows users to call `end.cage()` and thereby trigger a shutdown.
 
-    Ref. <https://github.com/makerdao/esm/blob/master/src/ESM.sol>
+    Ref. <https://github.com/velerofinance/esm/blob/master/src/ESM.sol>
 
     Attributes:
       web3: An instance of `Web` from `web3.py`.
-      address: Ethereum address of the `ESM` contract."""
+      address: Velas address of the `ESM` contract."""
 
     abi = Contract._load_abi(__name__, 'abi/ESM.abi')
     bin = Contract._load_bin(__name__, 'abi/ESM.bin')
@@ -52,21 +52,21 @@ class ShutdownModule(Contract):
         self._contract = self._get_contract(web3, self.abi, address)
 
     def sum(self) -> Wad:
-        """Total balance of MKR `join`ed to this contract"""
+        """Total balance of VDGT `join`ed to this contract"""
         return Wad(self._contract.functions.Sum().call())
 
     def sum_of(self, address: Address) -> Wad:
-        """MKR `join`ed to this contract by a specific account"""
+        """VDGT `join`ed to this contract by a specific account"""
         assert isinstance(address, Address)
 
         return Wad(self._contract.functions.sum(address.address).call())
 
     def min(self) -> Wad:
-        """Minimum amount of MKR required to call `fire`"""
+        """Minimum amount of VDGT required to call `fire`"""
         return Wad(self._contract.functions.min().call())
 
     def join(self, value: Wad) -> Transact:
-        """Before `fire` can be called, sufficient MKR must be `join`ed to this contract"""
+        """Before `fire` can be called, sufficient VDGT must be `join`ed to this contract"""
         assert isinstance(value, Wad)
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'join', [value.value])
 
@@ -80,18 +80,18 @@ class ShutdownModule(Contract):
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'deny', [address.address])
 
     def burn(self):
-        logger.info("Calling burn to burn all the joined MKR")
+        logger.info("Calling burn to burn all the joined VDGT")
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'burn', [])
 
 
 class End(Contract):
     """A client for the `End` contract, used to orchestrate a shutdown.
 
-    Ref. <https://github.com/makerdao/dss/blob/master/src/end.sol>
+    Ref. <https://github.com/velerofinance/dss/blob/master/src/end.sol>
 
     Attributes:
       web3: An instance of `Web` from `web3.py`.
-      address: Ethereum address of the `ESM` contract."""
+      address: Velas address of the `ESM` contract."""
 
     abi = Contract._load_abi(__name__, 'abi/End.abi')
     bin = Contract._load_bin(__name__, 'abi/End.bin')
@@ -118,7 +118,7 @@ class End(Contract):
         return int(self._contract.functions.wait().call())
 
     def debt(self) -> Rad:
-        """total outstanding dai following processing"""
+        """total outstanding usdv following processing"""
         return Rad(self._contract.functions.debt().call())
 
     def tag(self, ilk: Ilk) -> Ray:
@@ -142,7 +142,7 @@ class End(Contract):
         return Ray(self._contract.functions.fix(ilk.toBytes()).call())
 
     def bag(self, address: Address) -> Wad:
-        """Amount of Dai `pack`ed for retrieving collateral in return"""
+        """Amount of Usdv `pack`ed for retrieving collateral in return"""
         assert isinstance(address, Address)
         return Wad(self._contract.functions.bag(address.address).call())
 
@@ -181,7 +181,7 @@ class End(Contract):
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'free', [ilk.toBytes()])
 
     def thaw(self):
-        """Fix the total outstanding supply of Dai"""
+        """Fix the total outstanding supply of Usdv"""
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'thaw', [])
 
     def flow(self, ilk: Ilk) -> Transact:
@@ -189,13 +189,13 @@ class End(Contract):
         assert isinstance(ilk, Ilk)
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'flow', [ilk.toBytes()])
 
-    def pack(self, dai: Wad) -> Transact:
-        """Deposit Dai into the `bag`, from which it cannot be withdrawn"""
-        assert isinstance(dai, Wad)
-        return Transact(self, self.web3, self.abi, self.address, self._contract, 'pack', [dai.value])
+    def pack(self, usdv: Wad) -> Transact:
+        """Deposit Usdv into the `bag`, from which it cannot be withdrawn"""
+        assert isinstance(usdv, Wad)
+        return Transact(self, self.web3, self.abi, self.address, self._contract, 'pack', [usdv.value])
 
-    def cash(self, ilk: Ilk, dai: Wad):
-        """Exchange an amount of dai (already `pack`ed in the `bag`) for collateral"""
+    def cash(self, ilk: Ilk, usdv: Wad):
+        """Exchange an amount of usdv (already `pack`ed in the `bag`) for collateral"""
         assert isinstance(ilk, Ilk)
-        assert isinstance(dai, Wad)
-        return Transact(self, self.web3, self.abi, self.address, self._contract, 'cash', [ilk.toBytes(), dai.value])
+        assert isinstance(usdv, Wad)
+        return Transact(self, self.web3, self.abi, self.address, self._contract, 'cash', [ilk.toBytes(), usdv.value])

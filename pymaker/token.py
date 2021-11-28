@@ -28,7 +28,7 @@ class ERC20Token(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the ERC20 token.
+        address: Velas address of the ERC20 token.
     """
 
     abi = Contract._load_abi(__name__, 'abi/ERC20Token.abi')
@@ -191,7 +191,7 @@ class DSToken(ERC20Token):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSToken` contract.
+        address: Velas address of the `DSToken` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/DSToken.abi')
@@ -288,45 +288,45 @@ class DSToken(ERC20Token):
         return f"DSToken('{self.address}')"
 
 
-class DSEthToken(ERC20Token):
-    """A client for the `DSEthToken` contract.
+class DSVlxToken(ERC20Token):
+    """A client for the `DSVlxToken` contract.
 
-    `DSEthToken`, also known as ETH Wrapper or W-ETH, is a contract into which you can deposit
-    raw ETH and then deal with it like with any other ERC20 token. In addition to the `deposit()`
+    `DSVlxToken`, also known as VLX Wrapper or W-VLX, is a contract into which you can deposit
+    raw VLX and then deal with it like with any other ERC20 token. In addition to the `deposit()`
     and `withdraw()` methods, it implements the standard ERC20 token API.
 
-    You can find the source code of the `DSEthToken` contract here:
-    <https://github.com/dapphub/ds-eth-token>.
+    You can find the source code of the `DSVlxToken` contract here:
+    <https://github.com/dapphub/ds-vlx-token>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSEthToken` contract.
+        address: Velas address of the `DSVlxToken` contract.
     """
 
-    abi = Contract._load_abi(__name__, 'abi/DSEthToken.abi')
-    bin = Contract._load_bin(__name__, 'abi/DSEthToken.bin')
+    abi = Contract._load_abi(__name__, 'abi/DSVlxToken.abi')
+    bin = Contract._load_bin(__name__, 'abi/DSVlxToken.bin')
 
     @staticmethod
     def deploy(web3: Web3):
-        """Deploy a new instance of the `DSEthToken` contract.
+        """Deploy a new instance of the `DSVlxToken` contract.
 
         Args:
             web3: An instance of `Web` from `web3.py`.
 
         Returns:
-            A `DSEthToken` class instance.
+            A `DSVlxToken` class instance.
         """
-        return DSEthToken(web3=web3, address=Contract._deploy(web3, DSEthToken.abi, DSEthToken.bin, []))
+        return DSVlxToken(web3=web3, address=Contract._deploy(web3, DSVlxToken.abi, DSVlxToken.bin, []))
 
     def __init__(self, web3, address):
         super().__init__(web3, address)
         self._contract = self._get_contract(web3, self.abi, address)
 
     def deposit(self, amount: Wad) -> Transact:
-        """Deposits `amount` of raw ETH to `DSEthToken`.
+        """Deposits `amount` of raw VLX to `DSVlxToken`.
 
         Args:
-            amount: Amount of raw ETH to be deposited to `DSEthToken`.
+            amount: Amount of raw VLX to be deposited to `DSVlxToken`.
 
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
@@ -335,12 +335,12 @@ class DSEthToken(ERC20Token):
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'deposit', [], {'value': amount.value})
 
     def withdraw(self, amount: Wad) -> Transact:
-        """Withdraws `amount` of raw ETH from `DSEthToken`.
+        """Withdraws `amount` of raw VLX from `DSVlxToken`.
 
-        The withdrawn ETH will get transferred to the calling account.
+        The withdrawn VLX will get transferred to the calling account.
 
         Args:
-            amount: Amount of raw ETH to be withdrawn from `DSEthToken`.
+            amount: Amount of raw VLX to be withdrawn from `DSVlxToken`.
 
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
@@ -349,15 +349,15 @@ class DSEthToken(ERC20Token):
         return Transact(self, self.web3, self.abi, self.address, self._contract, 'withdraw', [amount.value])
 
     def __repr__(self):
-        return f"DSEthToken('{self.address}')"
+        return f"DSVlxToken('{self.address}')"
 
 
-class EthToken():
-    """Basic ETH token.
+class VlxToken():
+    """Basic VLX token.
 
         Attributes:
          web3: An instance of `Web` from `web3.py`.
-         address: Ethereum address of the original ETH token.
+         address: Velas address of the original VLX token.
     """
 
     def __init__(self, web3: Web3, address: Address):
@@ -368,13 +368,13 @@ class EthToken():
         self.address = address
 
     def balance_of(self, address):
-        """Returns the ETH balance of a given Ethereum address.
+        """Returns the VLX balance of a given Velas address.
 
          Args:
              address: The address to check the balance of.
 
          Returns:
-             The ETH balance of the address specified.
+             The VLX balance of the address specified.
          """
         assert(isinstance(address, Address))
 

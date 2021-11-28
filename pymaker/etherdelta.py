@@ -168,7 +168,7 @@ class EtherDelta(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `EtherDelta` contract.
+        address: Velas address of the `EtherDelta` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/EtherDelta.abi')
@@ -282,7 +282,7 @@ class EtherDelta(Contract):
         `LogTrade` events are emitted by the EtherDelta contract every time someone takes an order.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -294,10 +294,10 @@ class EtherDelta(Contract):
         return self._past_events(self._contract, 'Trade', LogTrade, number_of_past_blocks, event_filter)
 
     def deposit(self, amount: Wad) -> Transact:
-        """Deposits `amount` of raw ETH to EtherDelta.
+        """Deposits `amount` of raw VLX to EtherDelta.
 
         Args:
-            amount: Amount of raw ETH to be deposited on EtherDelta.
+            amount: Amount of raw VLX to be deposited on EtherDelta.
 
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.

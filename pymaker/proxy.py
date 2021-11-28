@@ -237,7 +237,7 @@ class DSProxyFactory(Contract):
         `LogCreated` events are emitted every time someone build a proxy from the factory.
 
         Args:
-            number_of_past_blocks: Number of past Ethereum blocks to retrieve the events from.
+            number_of_past_blocks: Number of past Velas blocks to retrieve the events from.
             event_filter: Filter which will be applied to returned events.
 
         Returns:
@@ -268,7 +268,7 @@ class DSProxyFactory(Contract):
 class ProxyRegistry(Contract):
     """A client for the `ProxyRegistry` contract.
 
-    Ref. <https://github.com/makerdao/proxy-registry/blob/master/src/ProxyRegistry.sol>
+    Ref. <https://github.com/velerofinance/proxy-registry/blob/master/src/ProxyRegistry.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/ProxyRegistry.abi')
@@ -297,7 +297,7 @@ class ProxyRegistry(Contract):
 class DssProxyActionsDsr(Contract):
     """A client for the `DssProxyActionsDsr` contract.
 
-    Ref. <https://github.com/makerdao/dss-proxy-actions/blob/master/src/DssProxyActions.sol>
+    Ref. <https://github.com/velerofinance/dss-proxy-actions/blob/master/src/DssProxyActions.sol>
     """
 
     abi = Contract._load_abi(__name__, 'abi/DssProxyActionsDsr.abi')

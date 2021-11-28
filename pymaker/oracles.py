@@ -26,11 +26,11 @@ class OSM(Contract):
     """A client for the `OSM` contract.
 
     You can find the source code of the `OSM` contract here:
-    <https://github.com/makerdao/osm>.
+    <https://github.com/velerofinance/osm>.
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `OSM` contract.
+        address: Velas address of the `OSM` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/OSM.abi')
@@ -68,7 +68,7 @@ class OldUniv2LpOSM(OSM):
     """A custom `OSM` contract for Uniswap LP tokens which used different storage slots, obsolete as of dss-1.7.0
 
     You can find the source code of the `OSM` contract here:
-    <https://github.com/makerdao/univ2-lp-oracle>.
+    <https://github.com/velerofinance/univ2-lp-oracle>.
     """
 
     def __init__(self, web3: Web3, address: Address):

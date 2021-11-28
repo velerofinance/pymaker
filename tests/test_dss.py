@@ -26,16 +26,16 @@ from pymaker.approval import hope_directly
 from pymaker.deployment import Collateral, DssDeployment
 from pymaker.dss import Ilk, Urn, Vat, Vow
 from pymaker.feed import DSValue
-from pymaker.join import DaiJoin, GemJoin, GemJoin5
+from pymaker.join import UsdvJoin, GemJoin, GemJoin5
 from pymaker.numeric import Wad, Ray, Rad
 from pymaker.oracles import OSM
-from pymaker.token import DSToken, DSEthToken, ERC20Token
+from pymaker.token import DSToken, DSVlxToken, ERC20Token
 from tests.conftest import validate_contracts_loaded
 
 
 @pytest.fixture
 def urn(our_address: Address, mcd: DssDeployment):
-    collateral = mcd.collaterals['ETH-A']
+    collateral = mcd.collaterals['VLX-A']
     urn = mcd.vat.urn(collateral.ilk, our_address)
     assert urn.ilk is not None
     assert urn.ilk == collateral.ilk
@@ -49,21 +49,21 @@ def wrap_eth(mcd: DssDeployment, address: Address, amount: Wad):
     assert amount > Wad(0)
 
     collateral = mcd.collaterals['ETH-A']
-    assert isinstance(collateral.gem, DSEthToken)
+    assert isinstance(collateral.gem, DSVlxToken)
     assert collateral.gem.deposit(amount).transact(from_address=address)
 
 
-def mint_mkr(mkr: DSToken, recipient_address: Address, amount: Wad):
-    assert isinstance(mkr, DSToken)
+def mint_vdgt(vdgt: DSToken, recipient_address: Address, amount: Wad):
+    assert isinstance(vdgt, DSToken)
     assert isinstance(recipient_address, Address)
     assert isinstance(amount, Wad)
     assert amount > Wad(0)
 
     deployment_address = Address("0x00a329c0648769A73afAc7F9381E08FB43dBEA72")
-    assert mkr.mint(amount).transact(from_address=deployment_address)
-    assert mkr.balance_of(deployment_address) > Wad(0)
-    assert mkr.approve(recipient_address).transact(from_address=deployment_address)
-    assert mkr.transfer(recipient_address, amount).transact(from_address=deployment_address)
+    assert vdgt.mint(amount).transact(from_address=deployment_address)
+    assert vdgt.balance_of(deployment_address) > Wad(0)
+    assert vdgt.approve(recipient_address).transact(from_address=deployment_address)
+    assert vdgt.transfer(recipient_address, amount).transact(from_address=deployment_address)
 
 
 def get_collateral_price(collateral: Collateral):
@@ -103,7 +103,7 @@ def frob(mcd: DssDeployment, collateral: Collateral, address: Address, dink: Wad
 
     # then
     if dart < Wad(0):
-        assert mcd.vat.dai(address) >= Rad(dart*-1)
+        assert mcd.vat.usdv(address) >= Rad(dart * -1)
     assert mcd.vat.frob(ilk=ilk, urn_address=address, dink=dink, dart=dart).transact(from_address=address)
     assert mcd.vat.urn(ilk, address).ink == ink_before + dink
     assert mcd.vat.urn(ilk, address).art == art_before + dart
@@ -148,18 +148,18 @@ def cleanup_urn(mcd: DssDeployment, collateral: Collateral, address: Address):
     urn = mcd.vat.urn(collateral.ilk, address)
     ilk = mcd.vat.ilk(collateral.ilk.name)
 
-    # If jug.drip has been called, we won't have sufficient dai to repay the CDP
+    # If jug.drip has been called, we won't have sufficient usdv to repay the CDP
     if ilk.rate > Ray.from_number(1):
         return
 
-    # Repay borrowed Dai
-    mcd.approve_dai(address)
-    # Put all the user's Dai back into the vat
-    if mcd.dai.balance_of(address) >= Wad(0):
-        assert mcd.dai_adapter.join(address, mcd.dai.balance_of(address)).transact(from_address=address)
+    # Repay borrowed Usdv
+    mcd.approve_usdv(address)
+    # Put all the user's Usdv back into the vat
+    if mcd.usdv.balance_of(address) >= Wad(0):
+        assert mcd.usdv_adapter.join(address, mcd.usdv.balance_of(address)).transact(from_address=address)
     # tab = Ray(urn.art) * ilk.rate
-    # print(f'tab={str(tab)}, rate={str(ilk.rate)}, dai={str(mcd.vat.dai(address))}')
-    if urn.art > Wad(0) and mcd.vat.dai(address) >= Rad(urn.art):
+    # print(f'tab={str(tab)}, rate={str(ilk.rate)}, usdv={str(mcd.vat.usdv(address))}')
+    if urn.art > Wad(0) and mcd.vat.usdv(address) >= Rad(urn.art):
         frob(mcd, collateral, address, Wad(0), urn.art * -1)
 
     # Withdraw collateral
@@ -216,7 +216,7 @@ class TestConfig:
         config_out = mcd.to_json()
         dict = json.loads(config_out)
         assert "MCD_GOV" in dict
-        assert "MCD_DAI" in dict
+        assert "MCD_USDV" in dict
         assert len(dict) > 20
 
     def test_from_node(self, web3: Web3):
@@ -319,9 +319,9 @@ class TestVat:
         assert isinstance(collateral_usdc.adapter, GemJoin5)
         assert collateral_usdc.adapter.dec() == 6
 
-    def test_dai(self, mcd, urn):
-        dai = mcd.vat.dai(urn.address)
-        assert dai >= Rad(0)
+    def test_usdv(self, mcd, urn):
+        usdv = mcd.vat.usdv(urn.address)
+        assert usdv >= Rad(0)
 
     def test_sin(self, mcd, urn):
         sin = mcd.vat.sin(urn.address)
@@ -387,7 +387,7 @@ class TestVat:
         # given
         collateral = mcd.collaterals['ETH-A']
         collateral.approve(other_address)
-        mcd.dai_adapter.approve(hope_directly(from_address=other_address), mcd.vat.address)
+        mcd.usdv_adapter.approve(hope_directly(from_address=other_address), mcd.vat.address)
         urn = mcd.vat.urn(collateral.ilk, other_address)
         assert urn.address == other_address
 
@@ -427,7 +427,7 @@ class TestVat:
             assert mcd.vat.frob(ilk1, other_address, Wad.from_number(-3), Wad.from_number(0)).transact(from_address=other_address)
 
             assert mcd.vat.frob(ilk1, our_address, Wad.from_number(3), Wad.from_number(0),
-                                collateral_owner=other_address, dai_recipient=other_address).transact(
+                                collateral_owner=other_address, usdv_recipient=other_address).transact(
                 from_address=other_address)
 
             # then
@@ -491,13 +491,13 @@ class TestVat:
         wrap_eth(mcd, our_address, Wad.from_number(10))
         assert collateral.adapter.join(our_address, Wad.from_number(3)).transact()
         assert mcd.vat.frob(collateral.ilk, our_address, Wad.from_number(3), Wad.from_number(30)).transact()
-        other_balance_before = mcd.vat.dai(other_address)
+        other_balance_before = mcd.vat.usdv(other_address)
 
         # when
         assert mcd.vat.move(our_address, other_address, Rad.from_number(30)).transact()
 
         # then
-        other_balance_after = mcd.vat.dai(other_address)
+        other_balance_after = mcd.vat.usdv(other_address)
         assert other_balance_before + Rad.from_number(30) == other_balance_after
 
         # confirm log was emitted and could be parsed
@@ -673,7 +673,7 @@ class TestMcd:
         collateral = mcd.collaterals['ETH-B']
         ilk = collateral.ilk
         TestVat.ensure_clean_urn(mcd, collateral, our_address)
-        initial_dai = mcd.vat.dai(our_address)
+        initial_usdv = mcd.vat.usdv(our_address)
         wrap_eth(mcd, our_address, Wad.from_number(9))
 
         # Ensure our collateral enters the urn
@@ -682,42 +682,42 @@ class TestMcd:
         assert collateral.adapter.join(our_address, Wad.from_number(9)).transact()
         assert collateral.gem.balance_of(our_address) == collateral_balance_before - Wad.from_number(9)
 
-        # Add collateral without generating Dai
+        # Add collateral without generating Usdv
         frob(mcd, collateral, our_address, dink=Wad.from_number(3), dart=Wad(0))
         print(f"After adding collateral:         {mcd.vat.urn(ilk, our_address)}")
         assert mcd.vat.urn(ilk, our_address).ink == Wad.from_number(3)
         assert mcd.vat.urn(ilk, our_address).art == Wad(0)
         assert mcd.vat.gem(ilk, our_address) == Wad.from_number(9) - mcd.vat.urn(ilk, our_address).ink
-        assert mcd.vat.dai(our_address) == initial_dai
+        assert mcd.vat.usdv(our_address) == initial_usdv
 
-        # Generate some Dai
+        # Generate some Usdv
         frob(mcd, collateral, our_address, dink=Wad(0), dart=Wad.from_number(153))
-        print(f"After generating dai:            {mcd.vat.urn(ilk, our_address)}")
+        print(f"After generating usdv:            {mcd.vat.urn(ilk, our_address)}")
         assert mcd.vat.urn(ilk, our_address).ink == Wad.from_number(3)
         assert mcd.vat.urn(ilk, our_address).art == Wad.from_number(153)
-        assert mcd.vat.dai(our_address) == initial_dai + Rad.from_number(153)
+        assert mcd.vat.usdv(our_address) == initial_usdv + Rad.from_number(153)
 
-        # Add collateral and generate some more Dai
+        # Add collateral and generate some more Usdv
         frob(mcd, collateral, our_address, dink=Wad.from_number(6), dart=Wad.from_number(180))
-        print(f"After adding collateral and dai: {mcd.vat.urn(ilk, our_address)}")
+        print(f"After adding collateral and usdv: {mcd.vat.urn(ilk, our_address)}")
         assert mcd.vat.urn(ilk, our_address).ink == Wad.from_number(9)
         assert mcd.vat.gem(ilk, our_address) == Wad(0)
         assert mcd.vat.urn(ilk, our_address).art == Wad.from_number(333)
-        assert mcd.vat.dai(our_address) == initial_dai + Rad.from_number(333)
+        assert mcd.vat.usdv(our_address) == initial_usdv + Rad.from_number(333)
 
-        # Mint and withdraw our Dai
-        dai_balance_before = mcd.dai.balance_of(our_address)
-        mcd.approve_dai(our_address)
-        assert isinstance(mcd.dai_adapter, DaiJoin)
-        assert mcd.dai_adapter.exit(our_address, Wad.from_number(333)).transact()
-        assert mcd.dai.balance_of(our_address) == dai_balance_before + Wad.from_number(333)
-        assert mcd.vat.dai(our_address) == initial_dai
-        assert mcd.vat.debt() >= initial_dai + Rad.from_number(333)
+        # Mint and withdraw our Usdv
+        usdv_balance_before = mcd.usdv.balance_of(our_address)
+        mcd.approve_usdv(our_address)
+        assert isinstance(mcd.usdv_adapter, UsdvJoin)
+        assert mcd.usdv_adapter.exit(our_address, Wad.from_number(333)).transact()
+        assert mcd.usdv.balance_of(our_address) == usdv_balance_before + Wad.from_number(333)
+        assert mcd.vat.usdv(our_address) == initial_usdv
+        assert mcd.vat.debt() >= initial_usdv + Rad.from_number(333)
 
-        # Repay (and burn) our Dai
-        assert mcd.dai_adapter.join(our_address, Wad.from_number(333)).transact()
-        assert mcd.dai.balance_of(our_address) == Wad(0)
-        assert mcd.vat.dai(our_address) == initial_dai + Rad.from_number(333)
+        # Repay (and burn) our Usdv
+        assert mcd.usdv_adapter.join(our_address, Wad.from_number(333)).transact()
+        assert mcd.usdv.balance_of(our_address) == Wad(0)
+        assert mcd.vat.usdv(our_address) == initial_usdv + Rad.from_number(333)
         wipe = mcd.vat.get_wipe_all_dart(collateral.ilk, our_address)
         assert wipe >= Wad.from_number(333)
         frob(mcd, collateral, our_address, dink=Wad(0), dart=wipe*-1)

@@ -143,7 +143,7 @@ def _track_status(f):
 
 @total_ordering
 class Address:
-    """Represents an Ethereum address.
+    """Represents an Velas address.
 
     Addresses get normalized automatically, so instances of this class can be safely compared to each other.
 
@@ -152,7 +152,7 @@ class Address:
             or another instance of the Address class.
 
     Attributes:
-        address: Normalized hexadecimal representation of the Ethereum address.
+        address: Normalized hexadecimal representation of the Velas address.
     """
     def __init__(self, address):
         if isinstance(address, Address):
@@ -250,7 +250,7 @@ class Contract:
 
 
 class Calldata:
-    """Represents Ethereum calldata.
+    """Represents Velas calldata.
 
     Attributes:
         value: Calldata as either a string starting with `0x`, or as bytes.
@@ -335,18 +335,18 @@ class Invocation(object):
 
 
 class Receipt:
-    """Represents a receipt for an Ethereum transaction.
+    """Represents a receipt for an Velas transaction.
 
     Attributes:
-        raw_receipt: Raw receipt received from the Ethereum node.
-        transaction_hash: Hash of the Ethereum transaction.
-        gas_used: Amount of gas used by the Ethereum transaction.
+        raw_receipt: Raw receipt received from the Velas node.
+        transaction_hash: Hash of the Velas transaction.
+        gas_used: Amount of gas used by the Velas transaction.
         transfers: A list of ERC20 token transfers resulting from the execution
-            of this Ethereum transaction. Each transfer is an instance of the
+            of this Velas transaction. Each transfer is an instance of the
             :py:class:`pymaker.Transfer` class.
         result: Transaction-specific return value (i.e. new order id for Oasis
             order creation transaction).
-        successful: Boolean flag which is `True` if the Ethereum transaction
+        successful: Boolean flag which is `True` if the Velas transaction
             was successful. We consider transaction successful if the contract
             method has been executed without throwing.
     """
@@ -444,7 +444,7 @@ def get_pending_transactions(web3: Web3, address: Address = None) -> list:
 
 
 class Transact:
-    """Represents an Ethereum transaction before it gets executed."""
+    """Represents an Velas transaction before it gets executed."""
 
     logger = logging.getLogger()
     gas_estimate_for_bad_txs = None
@@ -545,10 +545,10 @@ class Transact:
         return function_factory(*self.parameters)
 
     def name(self) -> str:
-        """Returns the nicely formatted name of this pending Ethereum transaction.
+        """Returns the nicely formatted name of this pending Velas transaction.
 
         Returns:
-            Nicely formatted name of this pending Ethereum transaction.
+            Nicely formatted name of this pending Velas transaction.
         """
         if self.origin:
             def format_parameter(parameter):
@@ -565,7 +565,7 @@ class Transact:
         return name if self.extra is None else name + f" with {self.extra}"
 
     def estimated_gas(self, from_address: Address) -> int:
-        """Return an estimated amount of gas which will get consumed by this Ethereum transaction.
+        """Return an estimated amount of gas which will get consumed by this Velas transaction.
 
         May throw an exception if the actual transaction will fail as well.
 
@@ -593,9 +593,9 @@ class Transact:
         return estimate
 
     def transact(self, **kwargs) -> Optional[Receipt]:
-        """Executes the Ethereum transaction synchronously.
+        """Executes the Velas transaction synchronously.
 
-        Executes the Ethereum transaction synchronously. The method will block until the
+        Executes the Velas transaction synchronously. The method will block until the
         transaction gets mined i.e. it will return when either the transaction execution
         succeeded or failed. In case of the former, a :py:class:`pymaker.Receipt`
         object will be returned.
@@ -618,9 +618,9 @@ class Transact:
 
     @_track_status
     async def transact_async(self, **kwargs) -> Optional[Receipt]:
-        """Executes the Ethereum transaction asynchronously.
+        """Executes the Velas transaction asynchronously.
 
-        Executes the Ethereum transaction asynchronously. The method will return immediately.
+        Executes the Velas transaction asynchronously. The method will return immediately.
         Ultimately, its future value will become either a :py:class:`pymaker.Receipt` or `None`,
         depending on whether the transaction execution was successful or not.
 
@@ -780,15 +780,15 @@ class Transact:
             await asyncio.sleep(0.25)
 
     def invocation(self) -> Invocation:
-        """Returns the `Invocation` object for this pending Ethereum transaction.
+        """Returns the `Invocation` object for this pending Velas transaction.
 
         The :py:class:`pymaker.Invocation` object may be used with :py:class:`pymaker.transactional.TxManager`
-        to invoke multiple contract calls in one Ethereum transaction.
+        to invoke multiple contract calls in one Velas transaction.
 
         Please see :py:class:`pymaker.transactional.TxManager` documentation for more details.
 
         Returns:
-            :py:class:`pymaker.Invocation` object for this pending Ethereum transaction.
+            :py:class:`pymaker.Invocation` object for this pending Velas transaction.
         """
         return Invocation(self.address, Calldata(self._contract_function()._encode_transaction_data()))
 

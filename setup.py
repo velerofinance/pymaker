@@ -37,7 +37,7 @@ setup(
     license='COPYING',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/makerdao/pymaker',
+    url='https://github.com/velerofinance/pymaker',
     author='MakerDAO',
     packages=find_packages(include=['pymaker', 'pymaker.*']),  # Required
     package_data={'pymaker': ['abi/*', '../config/*']},

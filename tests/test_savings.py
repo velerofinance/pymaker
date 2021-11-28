@@ -54,35 +54,35 @@ def test_join_and_exit(dsr):
     dart = Wad.from_number(100)
     frob(mcd, collateral, dsr.owner, dink=Wad(0), dart=dart)
 
-    # mint and withdraw all the Dai
-    mcd.approve_dai(dsr.owner)
-    assert mcd.dai_adapter.exit(dsr.owner, dart).transact(from_address=dsr.owner)
-    assert mcd.dai.balance_of(dsr.owner) == dart
+    # mint and withdraw all the Usdv
+    mcd.approve_usdv(dsr.owner)
+    assert mcd.usdv_adapter.exit(dsr.owner, dart).transact(from_address=dsr.owner)
+    assert mcd.usdv.balance_of(dsr.owner) == dart
 
-    initial_dai_balance = mcd.dai.balance_of(dsr.owner)
-    assert initial_dai_balance >= Wad.from_number(100)
+    initial_usdv_balance = mcd.usdv.balance_of(dsr.owner)
+    assert initial_usdv_balance >= Wad.from_number(100)
     assert dsr.get_balance(proxy.address) == Wad.from_number(0)
 
-    # approve Proxy to use 100 DAI from account
-    mcd.dai.approve(proxy.address, Wad.from_number(100)).transact(from_address=dsr.owner)
+    # approve Proxy to use 100 USDV from account
+    mcd.usdv.approve(proxy.address, Wad.from_number(100)).transact(from_address=dsr.owner)
 
-    # join 100 DAI in DSR
+    # join 100 USDV in DSR
     assert dsr.join(Wad.from_number(100), proxy).transact(from_address=dsr.owner)
-    assert mcd.dai.balance_of(dsr.owner) == initial_dai_balance - Wad.from_number(100)
+    assert mcd.usdv.balance_of(dsr.owner) == initial_usdv_balance - Wad.from_number(100)
     assert round(dsr.get_balance(proxy.address)) == Wad.from_number(100)
     assert mcd.pot.drip().transact()
 
-    # exit 33 DAI from DSR
+    # exit 33 USDV from DSR
     assert dsr.exit(Wad.from_number(33), proxy).transact(from_address=dsr.owner)
-    assert round(mcd.dai.balance_of(dsr.owner)) == round(initial_dai_balance) - Wad.from_number(100) + Wad.from_number(33)
+    assert round(mcd.usdv.balance_of(dsr.owner)) == round(initial_usdv_balance) - Wad.from_number(100) + Wad.from_number(33)
     assert round(dsr.get_balance(proxy.address)) == Wad.from_number(67)
     assert mcd.pot.drip().transact()
 
-    # exit remaining DAI from DSR and join to vat
+    # exit remaining USDV from DSR and join to vat
     assert dsr.exit_all(proxy).transact(from_address=dsr.owner)
-    assert round(mcd.dai.balance_of(dsr.owner)) == round(initial_dai_balance)
+    assert round(mcd.usdv.balance_of(dsr.owner)) == round(initial_usdv_balance)
     assert dsr.get_balance(proxy.address) == Wad.from_number(0)
-    assert mcd.dai_adapter.join(dsr.owner, mcd.dai.balance_of(dsr.owner)).transact(from_address=dsr.owner)
+    assert mcd.usdv_adapter.join(dsr.owner, mcd.usdv.balance_of(dsr.owner)).transact(from_address=dsr.owner)
 
     # repay the vault
     assert collateral.ilk.dust == Rad(0)

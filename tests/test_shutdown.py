@@ -27,7 +27,7 @@ from pymaker.shutdown import ShutdownModule, End
 
 from tests.helpers import time_travel_by
 from tests.test_auctions import create_surplus
-from tests.test_dss import mint_mkr, wrap_eth, frob
+from tests.test_dss import mint_vdgt, wrap_eth, frob
 
 
 def open_cdp(mcd: DssDeployment, collateral: Collateral, address: Address):
@@ -41,7 +41,7 @@ def open_cdp(mcd: DssDeployment, collateral: Collateral, address: Address):
     frob(mcd, collateral, address, Wad.from_number(10), Wad.from_number(20))
 
     assert mcd.vat.debt() >= Rad(Wad.from_number(20))
-    assert mcd.vat.dai(address) >= Rad.from_number(10)
+    assert mcd.vat.usdv(address) >= Rad.from_number(10)
 
 
 def create_flap_auction(mcd: DssDeployment, deployment_address: Address, our_address: Address):
@@ -51,15 +51,15 @@ def create_flap_auction(mcd: DssDeployment, deployment_address: Address, our_add
 
     flapper = mcd.flapper
     create_surplus(mcd, flapper, deployment_address)
-    joy = mcd.vat.dai(mcd.vow.address)
+    joy = mcd.vat.usdv(mcd.vow.address)
     assert joy > mcd.vat.sin(mcd.vow.address) + mcd.vow.bump() + mcd.vow.hump()
     assert (mcd.vat.sin(mcd.vow.address) - mcd.vow.sin()) - mcd.vow.ash() == Rad(0)
     assert mcd.vow.flap().transact()
 
-    mint_mkr(mcd.mkr, our_address, Wad.from_number(10))
-    flapper.approve(mcd.mkr.address, directly(from_address=our_address))
+    mint_vdgt(mcd.vdgt, our_address, Wad.from_number(10))
+    flapper.approve(mcd.vdgt.address, directly(from_address=our_address))
     bid = Wad.from_number(0.001)
-    assert mcd.mkr.balance_of(our_address) > bid
+    assert mcd.vdgt.balance_of(our_address) > bid
     assert flapper.tend(flapper.kicks(), mcd.vow.bump(), bid).transact(from_address=our_address)
 
 
@@ -77,27 +77,27 @@ class TestShutdownModule:
         assert mcd.esm.min() > Wad(0)
         assert mcd.end.live()
 
-        joy = mcd.vat.dai(mcd.vow.address)
+        joy = mcd.vat.usdv(mcd.vow.address)
         awe = mcd.vat.sin(mcd.vow.address)
         # If `test_shutdown.py` is run in isolation, create a flap auction to exercise `yank`
         if joy == Rad(0) and awe == Rad(0):
             create_flap_auction(mcd, deployment_address, our_address)
 
     def test_join(self, mcd, our_address):
-        assert mcd.mkr.approve(mcd.esm.address).transact()
+        assert mcd.vdgt.approve(mcd.esm.address).transact()
 
         # This should have no effect yet succeed regardless
         assert mcd.esm.join(Wad(0)).transact()
         assert mcd.esm.sum() == Wad(0)
         assert mcd.esm.sum_of(our_address) == Wad(0)
 
-        # Ensure the appropriate amount of MKR can be joined
-        mint_mkr(mcd.mkr, our_address, mcd.esm.min())
+        # Ensure the appropriate amount of VDGT can be joined
+        mint_vdgt(mcd.vdgt, our_address, mcd.esm.min())
         assert mcd.esm.join(mcd.esm.min()).transact()
         assert mcd.esm.sum() == mcd.esm.min()
 
-        # Joining extra MKR should succeed yet have no effect
-        mint_mkr(mcd.mkr, our_address, Wad(153))
+        # Joining extra VDGT should succeed yet have no effect
+        mint_vdgt(mcd.vdgt, our_address, Wad(153))
         assert mcd.esm.join(Wad(153)).transact()
         assert mcd.esm.sum() == mcd.esm.min() + Wad(153)
         assert mcd.esm.sum_of(our_address) == mcd.esm.sum()
@@ -187,12 +187,12 @@ class TestEnd:
         assert mcd.end.flow(ilk).transact()
         assert mcd.end.fix(ilk) > Ray(0)
 
-    @pytest.mark.skip(reason="unable to add dai to the `bag`")
+    @pytest.mark.skip(reason="unable to add usdv to the `bag`")
     def test_pack(self, mcd, our_address):
         assert mcd.end.bag(our_address) == Wad(0)
         assert mcd.end.debt() > Rad(0)
-        assert mcd.dai.approve(mcd.end.address).transact()
-        assert mcd.vat.dai(our_address) >= Rad.from_number(10)
+        assert mcd.usdv.approve(mcd.end.address).transact()
+        assert mcd.vat.usdv(our_address) >= Rad.from_number(10)
         # FIXME: `pack` fails, possibly because we're passing 0 to `vat.flux`
         assert mcd.end.pack(Wad.from_number(10)).transact()
         assert mcd.end.bag(our_address) == Wad.from_number(10)

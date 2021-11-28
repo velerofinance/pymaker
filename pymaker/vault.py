@@ -28,7 +28,7 @@ class DSVault(Contract):
 
     Attributes:
         web3: An instance of `Web` from `web3.py`.
-        address: Ethereum address of the `DSVault` contract.
+        address: Velas address of the `DSVault` contract.
     """
 
     abi = Contract._load_abi(__name__, 'abi/DSVault.abi')

@@ -25,24 +25,24 @@ from pymaker.numeric import Wad
 from pymaker.deployment import DssDeployment
 from datetime import datetime, timedelta
 
-from tests.test_dss import mint_mkr
+from tests.test_dss import mint_vdgt
 
 def mint_approve_lock(mcd: DssDeployment, amount: Wad, address: Address):
-    prevBalance = mcd.mkr.balance_of(address)
-    mint_mkr(mcd.mkr, address, amount)
-    assert mcd.mkr.balance_of(address) == amount + prevBalance
+    prevBalance = mcd.vdgt.balance_of(address)
+    mint_vdgt(mcd.vdgt, address, amount)
+    assert mcd.vdgt.balance_of(address) == amount + prevBalance
 
-    # Lock MKR in DS-Chief
-    assert mcd.mkr.approve(mcd.ds_chief.address).transact(from_address=address)
+    # Lock VDGT in DS-Chief
+    assert mcd.vdgt.approve(mcd.ds_chief.address).transact(from_address=address)
     assert mcd.ds_chief.lock(amount).transact(from_address=address)
-    assert mcd.mkr.balance_of(address) == prevBalance
+    assert mcd.vdgt.balance_of(address) == prevBalance
 
-def approve_iou_free_mkr(mcd: DssDeployment, amount: Wad, address: Address):
-    prevBalance = mcd.mkr.balance_of(address)
+def approve_iou_free_vdgt(mcd: DssDeployment, amount: Wad, address: Address):
+    prevBalance = mcd.vdgt.balance_of(address)
     iou = mcd.ds_chief.iou()
     assert iou.approve(mcd.ds_chief.address).transact(from_address=address)
     assert mcd.ds_chief.free(amount).transact(from_address=address)
-    assert mcd.mkr.balance_of(address) == amount + prevBalance
+    assert mcd.vdgt.balance_of(address) == amount + prevBalance
 
 # Relevant to DS-Chief 1.2 
 def launch_chief(mcd: DssDeployment, address: Address):
@@ -55,7 +55,7 @@ def launch_chief(mcd: DssDeployment, address: Address):
 
     # Launch Ds-Chief (1.2)
     assert mcd.ds_chief.launch().transact(from_address=address)
-    approve_iou_free_mkr(mcd, launchAmount, address)
+    approve_iou_free_vdgt(mcd, launchAmount, address)
 
 
 @pytest.mark.skip(reason="not fully implemented")
@@ -114,5 +114,5 @@ class TestDSChief:
         assert mcd.ds_chief.lift(other_address).transact(from_address=our_address)
         assert mcd.ds_chief.get_hat() == other_address
 
-        approve_iou_free_mkr(mcd, amount, our_address)
+        approve_iou_free_vdgt(mcd, amount, our_address)
 

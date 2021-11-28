@@ -22,7 +22,7 @@ from web3._utils.request import _get_session
 
 from pymaker import Address, Calldata, Contract, Receipt, Transfer, web3_via_http
 from pymaker.numeric import Wad
-from pymaker.util import eth_balance
+from pymaker.util import vlx_balance
 from tests.helpers import is_hashable
 
 test_abi = Contract._load_abi(__name__, 'abi/GemMock.abi')
@@ -40,7 +40,7 @@ class TestConnect:
             assert adapter._pool_maxsize == 39
 
         assert isinstance(web3, Web3)
-        assert eth_balance(web3, our_address) > Wad(0)
+        assert vlx_balance(web3, our_address) > Wad(0)
 
     def test_unsupported_url(self):
         with pytest.raises(ValueError):
