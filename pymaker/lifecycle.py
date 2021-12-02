@@ -27,7 +27,7 @@ from web3 import Web3
 from web3.exceptions import BlockNotFound, BlockNumberOutofRange
 
 from pymaker import register_filter_thread, any_filter_thread_present, stop_all_filter_threads, all_filter_threads_alive
-from pymaker.util import AsyncCallback
+from pymaker.util import AsyncCallback, get_provider_for_filter
 
 
 def trigger_event(event: threading.Event):
@@ -349,7 +349,9 @@ class Lifecycle:
                 self.logger.info(f"Ignoring block #{block_number} ({block_hash.hex()}), as the node is syncing")
 
         def new_block_watch():
-            event_filter = self.web3.eth.filter('latest')
+            provider_for_filter = get_provider_for_filter(self.web3)
+
+            event_filter = provider_for_filter.eth.filter('latest')
             logging.debug(f"Created event filter: {event_filter}")
             while True:
                 try:
@@ -357,7 +359,7 @@ class Lifecycle:
                         new_block_callback(event)
                 except (BlockNotFound, BlockNumberOutofRange, ValueError) as ex:
                     self.logger.warning(f"Node dropped event emitter; recreating latest block filter: {ex}")
-                    event_filter = self.web3.eth.filter('latest')
+                    event_filter = provider_for_filter.eth.filter('latest')
                 finally:
                     time.sleep(1)
 

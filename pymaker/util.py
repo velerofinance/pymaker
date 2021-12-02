@@ -97,6 +97,14 @@ def hexstring_to_bytes(value: str) -> bytes:
     return Web3.toBytes(hexstr=value)
 
 
+def get_provider_for_filter(web3: Web3):
+    if "velas" in web3.provider.endpoint_uri:
+        wss_url = web3.provider.endpoint_uri.replace("https", "wss")
+        return Web3(WebsocketProvider(wss_url))
+    else:
+        return web3
+
+
 class AsyncCallback:
     """Decouples callback invocation from the web3.py filter.
 
